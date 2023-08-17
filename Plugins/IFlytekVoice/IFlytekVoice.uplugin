@@ -1,0 +1,24 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "1.0",
+	"FriendlyName": "IFlytekVoice",
+	"Description": "Accessing iFLYTEK's voice recognition, synthesis and other functions.",
+	"Category": "Other",
+	"CreatedBy": "LiuZe",
+	"CreatedByURL": "https://space.bilibili.com/44520318?spm_id_from=333.1007.0.0",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "IFlytekVoice",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
