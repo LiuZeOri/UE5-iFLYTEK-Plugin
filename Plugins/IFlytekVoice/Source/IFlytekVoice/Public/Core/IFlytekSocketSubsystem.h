@@ -29,6 +29,5 @@ protected:
 
 protected:
 	TSharedPtr<IWebSocket> Socket = nullptr;
-	FString serverProtocol = TEXT("");
 
 };

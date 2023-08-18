@@ -3,6 +3,39 @@
 #include "CoreMinimal.h"
 #include "IFlytekVoiceType.generated.h"
 
+UENUM(BlueprintType)
+enum class EASRLanguageType : uint8
+{
+	// 中英混合
+	cn,
+	// 广东话
+	cn_cantonese,
+	// 河南话
+	cn_henanese,
+	// 西南官话（包括四川、重庆、云南、贵州）
+	cn_xinanese,
+	// 英语
+	en,
+	// 阿拉伯语
+	ar,
+	// 德语
+	de,
+	// 西班牙语
+	es,
+	// 法语
+	fr,
+	// 意大利语
+	it,
+	// 韩语
+	ko,
+	// 俄语
+	ru,
+	// 日语
+	ja,
+	// 越南语
+	vi,
+};
+
 /**
  * 用户配置结构体
  * 此结构体定义令牌、AppID等
@@ -22,7 +55,7 @@ struct IFLYTEKVOICE_API FIFlytekUserInfo
 	FString apiSecret;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
-	FString apiKey;
+	FString apiKeyASR;
 };
 
 /**
@@ -40,6 +73,17 @@ struct IFLYTEKVOICE_API FIFlytekASRInfo
 	// 请求地址
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
 	FString serverURL;
+
+	// 服务器协议
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	FString serverProtocol;
+
+	// 实时语音转写语种，不传默认为中文
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	EASRLanguageType Language;
+
+public:
+	FString GetLanguageString() const;
 };
 
 
