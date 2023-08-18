@@ -27,7 +27,7 @@ public class IFlytekVoice : ModuleRules
 			{
 				"Core",
 				"IFlytekVoiceLibrary",
-				"Projects"
+				"Projects",
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -36,6 +36,10 @@ public class IFlytekVoice : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+				"CoreUObject",
+				"Engine",
+				"WebSockets", 
+				"AITestSuite",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
