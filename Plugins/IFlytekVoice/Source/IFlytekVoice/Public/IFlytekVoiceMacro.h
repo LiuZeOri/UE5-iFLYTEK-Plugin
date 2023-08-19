@@ -25,3 +25,6 @@
 
 #define IFLYTEK_WARNING_PRINT(Content, ...)											\
 	IFLYTEK_PRINT(Content, Warning, __VA_ARGS__)
+
+// 发送字节
+#define FRAME_SIZE 1280

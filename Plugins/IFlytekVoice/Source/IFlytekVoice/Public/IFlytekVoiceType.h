@@ -86,4 +86,53 @@ public:
 	FString GetLanguageString() const;
 };
 
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FRecordingConfig
+{
+	GENERATED_USTRUCT_BODY()
+
+	FRecordingConfig();
+
+	// 采样率
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="RecordingConfig")
+	int32 SampleRate;
+
+	// 录制通道，1单通道，2双通道
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="RecordingConfig")
+	int32 Channels;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="RecordingConfig")
+	int32 BitsPerSample;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="RecordingConfig")
+	int32 BufferSize;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="RecordingConfig")
+	int32 ExtractDataTime;
+};
+
+struct IFLYTEKVOICE_API FWaveHeard
+{
+	int8 ChunkID[4];
+	uint32 ChunkSize;
+	int8 Format[4];
+};
+
+struct IFLYTEKVOICE_API FWaveFmt
+{
+	int8 SubChunkID[4];
+	uint32 SubChunkSize;
+	uint16 AudioFormat;
+	uint16 NumChannel;
+	uint32 SampleRate;
+	uint32 ByteRate;
+	uint16 BlockAlign;
+	uint16 BitsForSample;
+};
+
+struct IFLYTEKVOICE_API FWaveData
+{
+	int8 DataChunkID[4];
+	uint32 DataChunkSize;
+};
 

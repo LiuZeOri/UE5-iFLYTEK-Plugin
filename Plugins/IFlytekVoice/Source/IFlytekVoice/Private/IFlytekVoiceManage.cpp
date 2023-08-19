@@ -2,6 +2,8 @@
 
 #include "AITestsCommon.h"
 #include "IFlytekVoiceConfig.h"
+#include "IFlytekVoiceLog.h"
+#include "IFlytekVoiceMacro.h"
 #include "Core/IFlytekSocketSubsystem.h"
 
 FIFlytekVoiceManage* FIFlytekVoiceManage::Manage = nullptr;
@@ -35,16 +37,29 @@ void FIFlytekVoiceManage::Destroy()
 	Manage = NULL;
 }
 
-void FIFlytekVoiceManage::StartASR_ByWebSocket(const FIFlytekASRInfo& InConfigInfo)
+void FIFlytekVoiceManage::InitASRWebSocketSubsystem()
 {
-	UIFlytekSocketSubsystem* IFlytekSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekSocketSubsystem>();
-	
+	IFlytekSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekSocketSubsystem>();
+}
+
+void FIFlytekVoiceManage::StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo)
+{
 	IFlytekSocketSubsystem->CreateSocket(InConfigInfo);
 	
+	IFlytekSocketSubsystem->SendAudioData(OutHandle);
+}
+
+void FIFlytekVoiceManage::StopASR_ByWebSocket(int32 InHandle)
+{
+	IFLYTEK_LOG_PRINT(TEXT("Stop ASR."));
+	
+	IFlytekSocketSubsystem->StopSendAudioData(InHandle);
+	
+	IFlytekSocketSubsystem->CloseSocket();
 }
 
 void FIFlytekVoiceManage::InitLog()
 {
-	//配置初始化
+	// 配置初始化
 	FIFlytekVoiceConfig::Get()->Init();
 }

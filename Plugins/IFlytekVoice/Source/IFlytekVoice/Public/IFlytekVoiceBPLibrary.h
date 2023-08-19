@@ -15,6 +15,16 @@ class IFLYTEKVOICE_API UIFlytekVoiceBPLibrary : public UObject
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category="IFlytekVoice")
-	static void StartASR_ByWebSocket(const FIFlytekASRInfo& InConfigInfo);
+	// 初始化实时语音转写WebSocket子系统，只需要初始化一次
+	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|ASR|WebSocket")
+	static void InitASRWebSocketSubsystem();
+
+	// 开始实时语音转写（WebSocket方法）
+	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|ASR|WebSocket")
+	static void StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo);
+
+	// 结束实时语音转写（WebSocket方法）
+	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|ASR|WebSocket")
+	static void StopASR_ByWebSocket(int32 InHandle);
+
 };

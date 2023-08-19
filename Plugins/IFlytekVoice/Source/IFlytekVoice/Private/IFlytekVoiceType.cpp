@@ -46,3 +46,12 @@ FString FIFlytekASRInfo::GetLanguageString() const
 		return TEXT("cn");
 	}
 }
+
+FRecordingConfig::FRecordingConfig()
+{
+	SampleRate = 16000;
+	Channels = 1;
+	BitsPerSample = 16;
+	BufferSize = 1024 * 10;
+	ExtractDataTime = 40;
+}

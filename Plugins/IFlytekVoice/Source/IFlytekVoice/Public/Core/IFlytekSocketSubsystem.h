@@ -16,9 +16,13 @@ class IFLYTEKVOICE_API UIFlytekSocketSubsystem : public UGameInstanceSubsystem
 
 public:
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-	
+
 	void CreateSocket(const FIFlytekASRInfo& InConfigInfo);
 	void CloseSocket();
+	
+	void SendAudioData(int32& OutHandle);
+	void SendAudioData_Thread(int32 InHandle);
+	void StopSendAudioData(int32 InHandle);
 
 protected:
 	void OnConnected();
@@ -29,5 +33,18 @@ protected:
 
 protected:
 	TSharedPtr<IWebSocket> Socket = nullptr;
+
+private:
+	int32 GetASRHandle();
+	bool RemoveASRHandle(int32 InHandle);
+	bool FindASRHandle(int32 InHandle);
+	bool IsASRHandleExist(int32 InHandle) const;
+	int32 CreateASRUniqueHandle();
+	
+private:
+	// 线程池
+	TMap<int32, bool> ASRPool;
+	// 锁
+	FCriticalSection ASRMutex;
 
 };
