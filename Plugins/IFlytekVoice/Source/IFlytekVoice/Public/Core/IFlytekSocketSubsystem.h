@@ -34,7 +34,7 @@ protected:
 	void OnMessageSent(const FString& MessageString);
 
 protected:
-	TSharedPtr<IWebSocket> Socket = nullptr;
+	static TSharedPtr<IWebSocket> Socket;
 	FASRSocketTextDelegate ASRSocketTextDelegate;
 
 private:

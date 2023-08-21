@@ -4,6 +4,7 @@
 #include "IFlytekVoiceConfig.h"
 #include "IFlytekVoiceLog.h"
 #include "IFlytekVoiceMacro.h"
+
 #include "Core/IFlytekSocketSubsystem.h"
 
 FIFlytekVoiceManage* FIFlytekVoiceManage::Manage = nullptr;

@@ -8,6 +8,8 @@
 #include "JSON/IFlytekVoiceJson.h"
 #include "Sound/RecordingCollection.h"
 
+TSharedPtr<IWebSocket> UIFlytekSocketSubsystem::Socket = nullptr;
+
 struct FASRAbandonable : FNonAbandonableTask
 {
 	FASRAbandonable(const FSimpleDelegate& InThreadDelegate)
@@ -119,6 +121,7 @@ void UIFlytekSocketSubsystem::SendAudioData(int32& OutHandle, FASRSocketTextDele
 {
 	OutHandle = GetASRHandle();
 
+	// 绑定委托
 	ASRSocketTextDelegate = InASRSocketTextDelegate;
 	
 	(new FAutoDeleteAsyncTask<FASRAbandonable>(
@@ -194,13 +197,13 @@ void UIFlytekSocketSubsystem::StopSendAudioData(int32 InHandle)
 void UIFlytekSocketSubsystem::OnConnected()
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s"), *FString(__FUNCTION__));
-
-	ASRSocketTextDelegate.Clear();
 }
 
 void UIFlytekSocketSubsystem::OnConnectionError(const FString& Error)
 {
 	IFLYTEK_ERROR_PRINT(TEXT("%s Error:%s"), *FString(__FUNCTION__), *Error);
+
+	ASRSocketTextDelegate.Clear();
 }
 
 void UIFlytekSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
