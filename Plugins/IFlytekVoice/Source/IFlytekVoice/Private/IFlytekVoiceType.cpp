@@ -15,6 +15,10 @@ FIFlytekASRInfo::FIFlytekASRInfo()
 	bFilterPunctuation = false;
 	bUsePersonalizationParameter = false;
 	PersonalizationParameters = EASRPersonalizationParameters::edu;
+	bUseNearOrFarField = false;
+	FieldType = EASRFieldType::farField;
+	bUseRoleSeparation = false;
+	languageRecognitionMode = ELanguageRecognitionMode::ChineseAndEnglishMode;
 }
 
 FString FIFlytekASRInfo::GetLanguageTypeString() const
@@ -129,6 +133,34 @@ FString FIFlytekASRInfo::GetPersonalizationParameterString() const
 	}
 }
 
+FString FIFlytekASRInfo::GetFieldType() const
+{
+	switch (FieldType)
+	{
+	case EASRFieldType::nearField:
+		return TEXT("2");
+	case EASRFieldType::farField:
+		return TEXT("1");
+	default:
+		return TEXT("1");
+	}
+}
+
+FString FIFlytekASRInfo::GetLanguageRecognitionMode() const
+{
+	switch (languageRecognitionMode)
+	{
+	case ELanguageRecognitionMode::ChineseAndEnglishMode:
+		return TEXT("1");
+	case ELanguageRecognitionMode::ChineseAndLessEnglishMode:
+		return TEXT("2");
+	case ELanguageRecognitionMode::PureChineseMode:
+		return TEXT("4");
+	default:
+		return TEXT("1");
+	}
+}
+
 FRecordingConfig::FRecordingConfig()
 {
 	SampleRate = 16000;
@@ -141,5 +173,5 @@ FRecordingConfig::FRecordingConfig()
 FASRSocketResponded::FASRSocketResponded()
 {
 	isEnd = false;
-	type = 1;
+	type = -1;
 }

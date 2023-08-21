@@ -96,6 +96,21 @@ void UIFlytekSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
 	{
 		URL.Appendf(TEXT("&pd=%s"), *InConfigInfo.GetPersonalizationParameterString());
 	}
+
+	// 设置是否启用远近场切换
+	if (InConfigInfo.bUseNearOrFarField)
+	{
+		URL.Appendf(TEXT("&vadMdn=%s"), *InConfigInfo.GetFieldType());
+	}
+
+	// 设置是否开角色分离
+	if (InConfigInfo.bUseRoleSeparation)
+	{
+		URL.Appendf(TEXT("&roleType=2"));
+	}
+
+	// 语言识别模式选择
+	URL.Appendf(TEXT("&engLangType=%s"), *InConfigInfo.GetLanguageRecognitionMode());
 	
 	// 建立Socket连接
 	Socket = FWebSocketsModule::Get().CreateWebSocket(URL, InConfigInfo.serverProtocol);
@@ -123,6 +138,9 @@ void UIFlytekSocketSubsystem::SendAudioData(int32& OutHandle, FASRSocketTextDele
 
 	// 绑定委托
 	ASRSocketTextDelegate = InASRSocketTextDelegate;
+
+	srcFinalString = TEXT("");
+	dstFinalString = TEXT("");
 	
 	(new FAutoDeleteAsyncTask<FASRAbandonable>(
 		FSimpleDelegate::CreateUObject(this, &UIFlytekSocketSubsystem::SendAudioData_Thread,
@@ -220,13 +238,29 @@ void UIFlytekSocketSubsystem::OnMessage(const FString& Message)
 	FASRSocketResponded Responded;
 	IFlytekVoiceJson::ASRSocketRespondedToString(Message, Responded);
 
+	// 返回结果处理
 	if (Responded.type == 0)
 	{
 		IFLYTEK_LOG_PRINT(TEXT("%s | %s"), *Responded.src, *Responded.dst);
+		srcFinalString += Responded.src;
+		dstFinalString += Responded.dst;
+		// 结果回调
+		ASRSocketTextDelegate.ExecuteIfBound(Responded, srcFinalString, dstFinalString);
 	}
-	
-	// 结果回调
-	ASRSocketTextDelegate.ExecuteIfBound(Responded.src,Responded.dst);
+	else if (Responded.type == 1)
+	{
+		srcBuffString = srcFinalString + Responded.src;
+		dstBuffString = dstFinalString + Responded.dst;
+		// 结果回调
+		ASRSocketTextDelegate.ExecuteIfBound(Responded, srcBuffString, dstBuffString);
+		srcBuffString = TEXT("");
+		dstBuffString = TEXT("");
+	}
+	else if (Responded.type == -1 && !Responded.action.Equals("result"))
+	{
+		// 说明异常，直接回调
+		ASRSocketTextDelegate.ExecuteIfBound(Responded, TEXT(""), TEXT(""));
+	}
 }
 
 void UIFlytekSocketSubsystem::OnMessageSent(const FString& MessageString)

@@ -74,7 +74,8 @@ void FIFlytekVoiceConfig::Init(const FString& InPath)
 
 		// [IFlytekASRConfig] 配置
 		const TCHAR* IFlytekASRSection = TEXT("IFlytekASRConfig");
-		GetStringValue(IFlytekASRSection, TEXT("ServerURL"), ASRInfo.serverURL);
+		GetStringValue(IFlytekASRSection, TEXT("serverURL"), ASRInfo.serverURL);
+		GetStringValue(IFlytekASRSection, TEXT("serverProtocol"), ASRInfo.serverProtocol);
 	}
 }
 

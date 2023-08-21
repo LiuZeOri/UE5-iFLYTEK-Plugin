@@ -12,6 +12,7 @@ namespace IFlytekVoiceJson
 		{
 			if (TSharedPtr<FJsonObject> InJsonObject = ReadRoot->AsObject())
 			{
+				OutResponded.action = InJsonObject->GetStringField(TEXT("action"));
 				FString DataString;
 				if (InJsonObject->TryGetStringField(TEXT("data"), DataString))
 				{
@@ -28,6 +29,7 @@ namespace IFlytekVoiceJson
 								OutResponded.isEnd = DataObject->GetBoolField(TEXT("isEnd"));
 								OutResponded.src = DataObject->GetStringField(TEXT("src"));
 								OutResponded.type = DataObject->GetIntegerField(TEXT("type"));
+								OutResponded.rl = DataObject->GetIntegerField(TEXT("rl"));
 							}
 						}
 					}

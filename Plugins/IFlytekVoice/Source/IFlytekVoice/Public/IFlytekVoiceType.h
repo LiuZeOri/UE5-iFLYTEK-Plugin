@@ -99,6 +99,26 @@ enum class EASRPersonalizationParameters : uint8
 	car,
 };
 
+UENUM(BlueprintType)
+enum class EASRFieldType : uint8
+{
+	// 近场
+	nearField,
+	// 远场
+	farField,
+};
+
+UENUM(BlueprintType)
+enum class ELanguageRecognitionMode : uint8
+{
+	// 自动中英文模式
+	ChineseAndEnglishMode,
+	// 中文模式，可能包含少量英文
+	ChineseAndLessEnglishMode,
+	// 纯中文模式，不包含英文
+	PureChineseMode,
+};
+
 /**
  * 用户配置结构体
  * 此结构体定义令牌、AppID等
@@ -170,11 +190,29 @@ struct IFLYTEKVOICE_API FIFlytekASRInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo", meta=(EditCondition = "bUsePersonalizationParameter"))
 	EASRPersonalizationParameters PersonalizationParameters;
 
+	// 是否启用远近场切换
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	bool bUseNearOrFarField;
+
+	// 远近场切换
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo", meta=(EditCondition = "bUseNearOrFarField"))
+	EASRFieldType FieldType;
+
+	// 是否开角色分离，默认不开启
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	bool bUseRoleSeparation;
+
+	// 语言识别模式选择，默认为模式1，中英文模式
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	ELanguageRecognitionMode languageRecognitionMode;
+
 public:
 	FString GetLanguageTypeString() const;
 	FString GetTranslationStrategyString() const;
 	FString GetTranslationLanguageTypeString() const;
 	FString GetPersonalizationParameterString() const;
+	FString GetFieldType() const;
+	FString GetLanguageRecognitionMode() const;
 };
 
 USTRUCT(BlueprintType)
@@ -234,6 +272,10 @@ struct IFLYTEKVOICE_API FASRSocketResponded
 
 	FASRSocketResponded();
 
+	// 结果标识，started:握手，result:结果，error:异常
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
+	FString action;
+
 	// 目标语种翻译文本结果，与原始文本src对应
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
 	FString dst;
@@ -249,6 +291,10 @@ struct IFLYTEKVOICE_API FASRSocketResponded
 	// 结果类型标识，0-最终结果；1-中间结果
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
 	int32 type;
+
+	// 分离的角色编号，需开启角色分离的功能才返回对应的分离角色编号
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
+	int32 rl;
 };
 
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FASRSocketTextDelegate, FString, sourceText, FString, translateText);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, FASRSocketResponded, ASRSocketResponded, FString, originalText, FString, translateText);
