@@ -8,9 +8,16 @@ FIFlytekASRInfo::FIFlytekASRInfo()
 {
 	serverURL = TEXT("ws://rtasr.xfyun.cn/v1/ws");
 	serverProtocol = TEXT("ws");
+	Language = EASRLanguageType::cn;
+	bTranslation = false;
+	translationStrategy = EASRTranslationStrategy::strategyTwo;
+	translationLanguageType = EASRTranslationLanguageType::en;
+	bFilterPunctuation = false;
+	bUsePersonalizationParameter = false;
+	PersonalizationParameters = EASRPersonalizationParameters::edu;
 }
 
-FString FIFlytekASRInfo::GetLanguageString() const
+FString FIFlytekASRInfo::GetLanguageTypeString() const
 {
 	switch (Language)
 	{
@@ -47,6 +54,81 @@ FString FIFlytekASRInfo::GetLanguageString() const
 	}
 }
 
+FString FIFlytekASRInfo::GetTranslationStrategyString() const
+{
+	switch (translationStrategy)
+	{
+	case EASRTranslationStrategy::strategyOne:
+		return TEXT("1");
+	case EASRTranslationStrategy::strategyTwo:
+		return TEXT("2");
+	case EASRTranslationStrategy::strategyThree:
+		return TEXT("3");
+	default:
+		return TEXT("2");
+	}
+}
+
+FString FIFlytekASRInfo::GetTranslationLanguageTypeString() const
+{
+	switch (translationLanguageType)
+	{
+	case EASRTranslationLanguageType::cn:
+		return TEXT("cn");
+	case EASRTranslationLanguageType::cn_cantonese:
+		return TEXT("cn_cantonese");
+	case EASRTranslationLanguageType::en:
+		return TEXT("en");
+	case EASRTranslationLanguageType::ja:
+		return TEXT("ja");
+	case EASRTranslationLanguageType::ko:
+		return TEXT("ko");
+	case EASRTranslationLanguageType::ru:
+		return TEXT("ru");
+	case EASRTranslationLanguageType::fr:
+		return TEXT("fr");
+	case EASRTranslationLanguageType::es:
+		return TEXT("es");
+	case EASRTranslationLanguageType::vi:
+		return TEXT("vi");
+	default:
+		return TEXT("en");
+	}
+}
+
+FString FIFlytekASRInfo::GetPersonalizationParameterString() const
+{
+	switch (PersonalizationParameters)
+	{
+	case EASRPersonalizationParameters::court:
+		return TEXT("court");
+	case EASRPersonalizationParameters::edu:
+		return TEXT("edu");
+	case EASRPersonalizationParameters::finance:
+		return TEXT("finance");
+	case EASRPersonalizationParameters::medical:
+		return TEXT("medical");
+	case EASRPersonalizationParameters::tech:
+		return TEXT("tech");
+	case EASRPersonalizationParameters::isp:
+		return TEXT("isp");
+	case EASRPersonalizationParameters::gov:
+		return TEXT("gov");
+	case EASRPersonalizationParameters::ecom:
+		return TEXT("ecom");
+	case EASRPersonalizationParameters::mil:
+		return TEXT("mil");
+	case EASRPersonalizationParameters::com:
+		return TEXT("com");
+	case EASRPersonalizationParameters::life:
+		return TEXT("life");
+	case EASRPersonalizationParameters::car:
+		return TEXT("car");
+	default:
+		return TEXT("edu");
+	}
+}
+
 FRecordingConfig::FRecordingConfig()
 {
 	SampleRate = 16000;
@@ -54,4 +136,10 @@ FRecordingConfig::FRecordingConfig()
 	BitsPerSample = 16;
 	BufferSize = 1024 * 10;
 	ExtractDataTime = 40;
+}
+
+FASRSocketResponded::FASRSocketResponded()
+{
+	isEnd = false;
+	type = 1;
 }

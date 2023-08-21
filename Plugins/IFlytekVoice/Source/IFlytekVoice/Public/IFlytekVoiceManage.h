@@ -19,8 +19,7 @@ public:
 
 public:
 	// WebSocket方法实现实时语音转写
-	void InitASRWebSocketSubsystem();
-	void StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo);
+	void StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate);
 	void StopASR_ByWebSocket(int32 InHandle);
 
 protected:

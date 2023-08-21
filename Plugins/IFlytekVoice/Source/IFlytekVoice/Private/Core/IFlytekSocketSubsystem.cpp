@@ -5,6 +5,7 @@
 #include "IFlytekVoiceLog.h"
 
 #include "WebSocketsModule.h"
+#include "JSON/IFlytekVoiceJson.h"
 #include "Sound/RecordingCollection.h"
 
 struct FASRAbandonable : FNonAbandonableTask
@@ -72,9 +73,27 @@ void UIFlytekSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
 		*signa);
 
 	// 设置语种
-	URL.Appendf(TEXT("&lang=%s"), *InConfigInfo.GetLanguageString());
+	URL.Appendf(TEXT("&lang=%s"), *InConfigInfo.GetLanguageTypeString());
 	
-	// 设置其他...
+	// 设置翻译功能
+	if (InConfigInfo.bTranslation)
+	{
+		URL.Appendf(TEXT("&transType=normal&transStrategy=%s&targetLang=%s"),
+			*InConfigInfo.GetTranslationStrategyString(),
+			*InConfigInfo.GetTranslationLanguageTypeString());
+	}
+
+	// 设置是否过滤标点
+	if (InConfigInfo.bFilterPunctuation)
+	{
+		URL.Appendf(TEXT("&punc=0"));
+	}
+
+	// 设置是否启用垂直领域个性化参数
+	if (InConfigInfo.bUsePersonalizationParameter)
+	{
+		URL.Appendf(TEXT("&pd=%s"), *InConfigInfo.GetPersonalizationParameterString());
+	}
 	
 	// 建立Socket连接
 	Socket = FWebSocketsModule::Get().CreateWebSocket(URL, InConfigInfo.serverProtocol);
@@ -96,9 +115,11 @@ void UIFlytekSocketSubsystem::CloseSocket()
 	}
 }
 
-void UIFlytekSocketSubsystem::SendAudioData(int32& OutHandle)
+void UIFlytekSocketSubsystem::SendAudioData(int32& OutHandle, FASRSocketTextDelegate InASRSocketTextDelegate)
 {
 	OutHandle = GetASRHandle();
+
+	ASRSocketTextDelegate = InASRSocketTextDelegate;
 	
 	(new FAutoDeleteAsyncTask<FASRAbandonable>(
 		FSimpleDelegate::CreateUObject(this, &UIFlytekSocketSubsystem::SendAudioData_Thread,
@@ -162,11 +183,19 @@ void UIFlytekSocketSubsystem::StopSendAudioData(int32 InHandle)
 	{
 		*InValue = true;
 	}
+
+	// 上传完成后，客户端需发送一个特殊的binary message到服务端作为结束标识
+	std::string end = "{\"end\": true}";
+	std::vector<uint8> binaryData (end.begin(), end.end());
+	Socket->Send(binaryData.data(), binaryData.size());
+	ASRSocketTextDelegate.Clear();
 }
 
 void UIFlytekSocketSubsystem::OnConnected()
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s"), *FString(__FUNCTION__));
+
+	ASRSocketTextDelegate.Clear();
 }
 
 void UIFlytekSocketSubsystem::OnConnectionError(const FString& Error)
@@ -183,6 +212,18 @@ void UIFlytekSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reason, 
 void UIFlytekSocketSubsystem::OnMessage(const FString& Message)
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
+
+	// 解析Json数据
+	FASRSocketResponded Responded;
+	IFlytekVoiceJson::ASRSocketRespondedToString(Message, Responded);
+
+	if (Responded.type == 0)
+	{
+		IFLYTEK_LOG_PRINT(TEXT("%s | %s"), *Responded.src, *Responded.dst);
+	}
+	
+	// 结果回调
+	ASRSocketTextDelegate.ExecuteIfBound(Responded.src,Responded.dst);
 }
 
 void UIFlytekSocketSubsystem::OnMessageSent(const FString& MessageString)

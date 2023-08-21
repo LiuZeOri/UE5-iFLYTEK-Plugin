@@ -37,16 +37,14 @@ void FIFlytekVoiceManage::Destroy()
 	Manage = NULL;
 }
 
-void FIFlytekVoiceManage::InitASRWebSocketSubsystem()
+void FIFlytekVoiceManage::StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate)
 {
+	// 创建子系统，如果已经存在则不会创建新的副本
 	IFlytekSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekSocketSubsystem>();
-}
-
-void FIFlytekVoiceManage::StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo)
-{
+	
 	IFlytekSocketSubsystem->CreateSocket(InConfigInfo);
 	
-	IFlytekSocketSubsystem->SendAudioData(OutHandle);
+	IFlytekSocketSubsystem->SendAudioData(OutHandle, InASRSocketTextDelegate);
 }
 
 void FIFlytekVoiceManage::StopASR_ByWebSocket(int32 InHandle)

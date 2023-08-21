@@ -7,7 +7,9 @@
 #include "IFlytekSocketSubsystem.generated.h"
 
 /**
- * 科大讯飞Socket子系统
+ * 科大讯飞ASR实时语音转写Socket子系统
+ * 官方Web API文档：https://www.xfyun.cn/doc/asr/rtasr/API.html#%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E
+ * 作者开发文档：https://www.yuque.com/u28988421/ad9c7i/sa1fatpyzrg79994#VbRPQ
  */
 UCLASS()
 class IFLYTEKVOICE_API UIFlytekSocketSubsystem : public UGameInstanceSubsystem
@@ -20,7 +22,7 @@ public:
 	void CreateSocket(const FIFlytekASRInfo& InConfigInfo);
 	void CloseSocket();
 	
-	void SendAudioData(int32& OutHandle);
+	void SendAudioData(int32& OutHandle, FASRSocketTextDelegate InASRSocketTextDelegate);
 	void SendAudioData_Thread(int32 InHandle);
 	void StopSendAudioData(int32 InHandle);
 
@@ -33,6 +35,7 @@ protected:
 
 protected:
 	TSharedPtr<IWebSocket> Socket = nullptr;
+	FASRSocketTextDelegate ASRSocketTextDelegate;
 
 private:
 	int32 GetASRHandle();

@@ -40,6 +40,7 @@ public class IFlytekVoice : ModuleRules
 				"Engine",
 				"WebSockets", 
 				"AITestSuite",
+				"Json",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

@@ -36,6 +36,69 @@ enum class EASRLanguageType : uint8
 	vi,
 };
 
+UENUM(BlueprintType)
+enum class EASRTranslationStrategy : uint8
+{
+	// 策略1：转写的vad结果直接送去翻译
+	strategyOne,
+	// 策略2：返回中间过程中的结果（建议）
+	strategyTwo,
+	// 策略3：按照结束性标点拆分转写结果请求翻译
+	strategyThree,
+};
+
+UENUM(BlueprintType)
+enum class EASRTranslationLanguageType : uint8
+{
+	// 中文
+	cn,
+	// 广东话
+	cn_cantonese,
+	// 英文
+	en,
+	// 日语
+	ja,
+	// 韩语
+	ko,
+	// 俄语
+	ru,
+	// 法语
+	fr,
+	// 西班牙语
+	es,
+	// 越南语
+	vi,
+};
+
+UENUM(BlueprintType)
+enum class EASRPersonalizationParameters : uint8
+{
+	// 法院
+	court,
+	// 教育
+	edu,
+	// 金融
+	finance,
+	// 医疗
+	medical,
+	// 科技
+	tech,
+	// 运营商
+	isp,
+	// 政府
+	gov,
+	// 电商
+	ecom,
+	// 军事
+	mil,
+	// 企业
+	com,
+	// 生活
+	life,
+	// 汽车
+	car,
+};
+
 /**
  * 用户配置结构体
  * 此结构体定义令牌、AppID等
@@ -82,8 +145,36 @@ struct IFLYTEKVOICE_API FIFlytekASRInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
 	EASRLanguageType Language;
 
+	// 是否开启翻译功能
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	bool bTranslation;
+
+	// 翻译策略
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo", meta=(EditCondition = "bTranslation"))
+	EASRTranslationStrategy translationStrategy;
+
+	// 目标翻译语种：控制把源语言转换成什么类型的语言；
+	// 请注意类似英文转成法语必须以中文为过渡语言，即英-中-法，暂不支持不含中文语种之间的直接转换
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo", meta=(EditCondition = "bTranslation"))
+	EASRTranslationLanguageType translationLanguageType;
+
+	// 是否过滤标点符号
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	bool bFilterPunctuation;
+
+	// 是否启用垂直领域个性化参数
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo")
+	bool bUsePersonalizationParameter;
+
+	// 垂直领域个性化参数
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASRInfo", meta=(EditCondition = "bUsePersonalizationParameter"))
+	EASRPersonalizationParameters PersonalizationParameters;
+
 public:
-	FString GetLanguageString() const;
+	FString GetLanguageTypeString() const;
+	FString GetTranslationStrategyString() const;
+	FString GetTranslationLanguageTypeString() const;
+	FString GetPersonalizationParameterString() const;
 };
 
 USTRUCT(BlueprintType)
@@ -136,3 +227,28 @@ struct IFLYTEKVOICE_API FWaveData
 	uint32 DataChunkSize;
 };
 
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FASRSocketResponded
+{
+	GENERATED_USTRUCT_BODY()
+
+	FASRSocketResponded();
+
+	// 目标语种翻译文本结果，与原始文本src对应
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
+	FString dst;
+
+	// 翻译结束标识，如果为 true，标识翻译结果已推送完成
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
+	bool isEnd;
+	
+	// 送翻译的原始文本，音频对应的识别文本
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
+	FString src;
+
+	// 结果类型标识，0-最终结果；1-中间结果
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
+	int32 type;
+};
+
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FASRSocketTextDelegate, FString, sourceText, FString, translateText);
