@@ -20,6 +20,8 @@ public:
 	void CreateSocket(const FIFlytekTTSInfo& InConfigInfo);
 	void CloseSocket();
 
+	void SendData(const FIFlytekTTSInfo& InConfigInfo);
+
 protected:
 	void OnConnected();
 	void OnConnectionError(const FString& Error);

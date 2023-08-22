@@ -166,6 +166,91 @@ FIFlytekTTSInfo::FIFlytekTTSInfo()
 	serverURL = TEXT("ws://tts-api.xfyun.cn/v2/tts");
 	serverProtocol = TEXT("ws");
 	host = TEXT("tts-api.xfyun.cn");
+	aue = EAudioEncodingType::raw;
+	auf = EAudioSampleRate::rate16k;
+	vcn = TEXT("xiaoyan");
+	speed = 50;
+	volume = 50;
+	pitch = 50;
+	bgs = false;
+	reg = EEnglishPronunciationType::defaultMethod;
+	rdn = ENumberPronunciationType::automaticJudgment;
+}
+
+FString FIFlytekTTSInfo::GetAudioEncodingTypeString() const
+{
+	switch (aue)
+	{
+	case EAudioEncodingType::raw:
+		return TEXT("raw");
+	case EAudioEncodingType::lame:
+		return TEXT("lame");
+	default:
+		return TEXT("raw");
+	}
+}
+
+FString FIFlytekTTSInfo::GetAudioSampleRateString() const
+{
+	switch (auf)
+	{
+	case EAudioSampleRate::rate8k:
+		return TEXT("audio/L16;rate=8000");
+	case EAudioSampleRate::rate16k:
+		return TEXT("audio/L16;rate=16000");
+	default:
+		return TEXT("audio/L16;rate=16000");
+	}
+}
+
+FString FIFlytekTTSInfo::GetEnglishPronunciationTypeString() const
+{
+	switch (reg)
+	{
+	case EEnglishPronunciationType::methodOne:
+		return TEXT("0");
+	case EEnglishPronunciationType::methodTwo:
+		return TEXT("1");
+	case EEnglishPronunciationType::methodThree:
+		return TEXT("2");
+	case EEnglishPronunciationType::defaultMethod:
+		return TEXT("-1");
+	default:
+		return TEXT("-1");
+	}
+}
+
+FString FIFlytekTTSInfo::GetNumberPronunciationTypeString() const
+{
+	switch (rdn)
+	{
+	case ENumberPronunciationType::automaticJudgment:
+		return TEXT("0");
+	case ENumberPronunciationType::fullNumericValue:
+		return TEXT("1");
+	case ENumberPronunciationType::fullString:
+		return TEXT("2");
+	case ENumberPronunciationType::stringFirst:
+		return TEXT("3");
+	default:
+		return TEXT("0");
+	}
+}
+
+FString FIFlytekTTSInfo::GetAfterEncodeText() const
+{
+	// 将FString转换为ANSI字符串
+	const char* AnsiString = TCHAR_TO_ANSI(*text);
+
+	// 将ANSI字符串转换为二进制数据
+	TArray<uint8> BinaryData;
+	for (int32 Index = 0; AnsiString[Index] != '\0'; Index++)
+	{
+		BinaryData.Add(static_cast<uint8>(AnsiString[Index]));
+	}
+
+	// 对二进制数据进行base64编码
+	return FBase64::Encode(BinaryData.GetData(), BinaryData.Num());
 }
 
 FRecordingConfig::FRecordingConfig()

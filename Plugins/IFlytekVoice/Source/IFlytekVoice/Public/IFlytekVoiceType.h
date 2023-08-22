@@ -119,6 +119,50 @@ enum class ELanguageRecognitionMode : uint8
 	PureChineseMode,
 };
 
+UENUM(BlueprintType)
+enum class EAudioEncodingType : uint8
+{
+	// 未压缩的pcm
+	raw,
+	// mp3 (当aue=lame时需传参sfl=1)
+	lame,
+};
+
+UENUM(BlueprintType)
+enum class EAudioSampleRate : uint8
+{
+	// 合成8K 的音频
+	rate8k,
+	// 合成16K 的音频
+	rate16k,
+};
+
+UENUM(BlueprintType)
+enum class EEnglishPronunciationType : uint8
+{
+	// 默认
+	defaultMethod,
+	// 自动判断处理，如果不确定将按照英文词语拼写处理（缺省）
+	methodOne,
+	// 所有英文按字母发音
+	methodTwo,
+	// 自动判断处理，如果不确定将按照字母朗读
+	methodThree,
+};
+
+UENUM(BlueprintType)
+enum class ENumberPronunciationType : uint8
+{
+	// 自动判断（默认值）
+	automaticJudgment,
+	// 完全数值
+	fullNumericValue,
+	// 完全字符串
+	fullString,
+	// 字符串优先
+	stringFirst,
+};
+
 /**
  * 用户配置结构体
  * 此结构体定义令牌、AppID等
@@ -241,6 +285,53 @@ struct IFLYTEKVOICE_API FIFlytekTTSInfo
 	// 请求主机
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
 	FString host;
+
+	// 音频编码
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	EAudioEncodingType aue;
+
+	// 音频采样率
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	EAudioSampleRate auf;
+
+	// 发音人
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	FString vcn;
+
+	// 语速，可选值：[0-100]，默认为50
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	int32 speed;
+
+	// 音量，可选值：[0-100]，默认为50
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	int32 volume;
+
+	// 音高，可选值：[0-100]，默认为50
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	int32 pitch;
+
+	// 是否开启背景声音，默认关闭
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	bool bgs;
+
+	// 英文发音方式
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	EEnglishPronunciationType reg;
+
+	// 合成音频数字发音方式
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	ENumberPronunciationType rdn;
+
+	// 合成文本内容
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	FString text;
+
+public:
+	FString GetAudioEncodingTypeString() const;
+	FString GetAudioSampleRateString() const;
+	FString GetEnglishPronunciationTypeString() const;
+	FString GetNumberPronunciationTypeString() const;
+	FString GetAfterEncodeText() const;
 };
 
 USTRUCT(BlueprintType)

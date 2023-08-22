@@ -1,4 +1,6 @@
 #include "JSON/IFlytekVoiceJson.h"
+
+#include "IFlytekVoiceConfig.h"
 #include "Json.h"
 
 namespace IFlytekVoiceJson
@@ -36,5 +38,62 @@ namespace IFlytekVoiceJson
 				}
 			}
 		}
+	}
+
+	void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, FString& OutJsonString)
+	{
+		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutJsonString);
+
+		JsonWriter->WriteObjectStart();
+		{
+			// common
+			JsonWriter->WriteObjectStart(TEXT("common"));
+			{
+				JsonWriter->WriteValue(TEXT("app_id"), FIFlytekVoiceConfig::Get()->UserInfo.appID);
+			}
+			JsonWriter->WriteObjectEnd(); //}
+
+			// business
+			JsonWriter->WriteObjectStart(TEXT("business"));
+			{
+				// 设置音频编码
+				JsonWriter->WriteValue(TEXT("aue"), InParam.GetAudioEncodingTypeString());
+				// 需要配合aue=lame使用，开启流式返回mp3格式音频
+				if (InParam.GetAudioEncodingTypeString().Equals(TEXT("lame")))
+					JsonWriter->WriteValue(TEXT("sfl"), 1);
+				// 设置音频采样率
+				JsonWriter->WriteValue(TEXT("auf"), InParam.GetAudioSampleRateString());
+				// 设置发音人
+				JsonWriter->WriteValue(TEXT("vcn"), InParam.vcn);
+				// 设置语速
+				JsonWriter->WriteValue(TEXT("speed"), InParam.speed);
+				// 设置音量
+				JsonWriter->WriteValue(TEXT("volume"), InParam.volume);
+				// 设置音高
+				JsonWriter->WriteValue(TEXT("pitch"), InParam.pitch);
+				// 设置是否开启背景音乐
+				if (InParam.bgs)
+					JsonWriter->WriteValue(TEXT("bgs"), 1);
+				// 设置文本编码格式
+				JsonWriter->WriteValue(TEXT("tte"), TEXT("UTF8"));
+				// 设置英文发音方式
+				if (!InParam.GetEnglishPronunciationTypeString().Equals(TEXT("-1")))
+					JsonWriter->WriteValue(TEXT("reg"), InParam.GetEnglishPronunciationTypeString());
+				// 设置合成音频数字发音方式
+				JsonWriter->WriteValue(TEXT("rdn"), InParam.GetNumberPronunciationTypeString());
+			}
+			JsonWriter->WriteObjectEnd(); //}
+
+			// data
+			JsonWriter->WriteObjectStart(TEXT("data"));
+			{
+				JsonWriter->WriteValue(TEXT("status"), 2);
+				JsonWriter->WriteValue(TEXT("text"), InParam.GetAfterEncodeText());
+			}
+			JsonWriter->WriteObjectEnd(); //}
+		}
+		JsonWriter->WriteObjectEnd();
+		JsonWriter->Close();
 	}
 }

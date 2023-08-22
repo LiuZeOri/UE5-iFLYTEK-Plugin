@@ -5,8 +5,9 @@
 #include "IFlytekVoiceLog.h"
 
 #include "Util/hmacsha256.h"
-
+#include "JSON/IFlytekVoiceJson.h"
 #include "WebSocketsModule.h"
+
 
 void UIFlytekTTSSocketSubsystem::CreateSocket(const FIFlytekTTSInfo& InConfigInfo)
 {
@@ -64,6 +65,14 @@ void UIFlytekTTSSocketSubsystem::CloseSocket()
 	{
 		Socket->Close();
 	}
+}
+
+void UIFlytekTTSSocketSubsystem::SendData(const FIFlytekTTSInfo& InConfigInfo)
+{
+	// 上传数据
+	FString sendJsonString;
+	IFlytekVoiceJson::TTSSocketRequestToJson(InConfigInfo, sendJsonString);
+	Socket->Send(sendJsonString);
 }
 
 void UIFlytekTTSSocketSubsystem::OnConnected()

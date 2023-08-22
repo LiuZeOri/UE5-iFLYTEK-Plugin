@@ -64,6 +64,8 @@ void FIFlytekVoiceManage::StartTTS_ByWebSocket(const FIFlytekTTSInfo& InConfigIn
 	IFlytekTTSSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekTTSSocketSubsystem>();
 
 	IFlytekTTSSocketSubsystem->CreateSocket(InConfigInfo);
+	
+	IFlytekTTSSocketSubsystem->SendData(InConfigInfo);
 }
 
 void FIFlytekVoiceManage::InitLog()
