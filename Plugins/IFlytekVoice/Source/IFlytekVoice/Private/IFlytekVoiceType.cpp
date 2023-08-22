@@ -161,6 +161,13 @@ FString FIFlytekASRInfo::GetLanguageRecognitionMode() const
 	}
 }
 
+FIFlytekTTSInfo::FIFlytekTTSInfo()
+{
+	serverURL = TEXT("ws://tts-api.xfyun.cn/v2/tts");
+	serverProtocol = TEXT("ws");
+	host = TEXT("tts-api.xfyun.cn");
+}
+
 FRecordingConfig::FRecordingConfig()
 {
 	SampleRate = 16000;

@@ -23,4 +23,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|ASR|WebSocket")
 	static void StopASR_ByWebSocket(int32 InHandle);
 
+	// 开始语音合成（流式版）TTS（WebSocket方法）
+	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|TTS|WebSocket")
+	static void StartTTS_ByWebSocket(const FIFlytekTTSInfo& InConfigInfo);
+
 };

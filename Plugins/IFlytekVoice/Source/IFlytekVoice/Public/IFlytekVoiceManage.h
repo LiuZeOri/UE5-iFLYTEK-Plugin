@@ -3,7 +3,8 @@
 #include "CoreMinimal.h"
 #include "IFlytekVoiceType.h"
 
-class UIFlytekSocketSubsystem;
+class UIFlytekASRSocketSubsystem;
+class UIFlytekTTSSocketSubsystem;
 
 /**
  * 功能实现类，为单例类
@@ -22,11 +23,15 @@ public:
 	void StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate);
 	void StopASR_ByWebSocket(int32 InHandle);
 
+	// WebSocket方法实现语音合成
+	void StartTTS_ByWebSocket(const FIFlytekTTSInfo& InConfigInfo);
+
 protected:
 	void InitLog();
 
 private:
 	static FIFlytekVoiceManage* Manage;
 
-	UIFlytekSocketSubsystem* IFlytekSocketSubsystem = nullptr;
+	UIFlytekASRSocketSubsystem* IFlytekASRSocketSubsystem = nullptr;
+	UIFlytekTTSSocketSubsystem* IFlytekTTSSocketSubsystem = nullptr;
 };

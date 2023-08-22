@@ -5,7 +5,8 @@
 #include "IFlytekVoiceLog.h"
 #include "IFlytekVoiceMacro.h"
 
-#include "Core/IFlytekSocketSubsystem.h"
+#include "Subsystem/IFlytekASRSocketSubsystem.h"
+#include "Subsystem/IFlytekTTSSocketSubsystem.h"
 
 FIFlytekVoiceManage* FIFlytekVoiceManage::Manage = nullptr;
 
@@ -41,20 +42,28 @@ void FIFlytekVoiceManage::Destroy()
 void FIFlytekVoiceManage::StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate)
 {
 	// 创建子系统，如果已经存在则不会创建新的副本
-	IFlytekSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekSocketSubsystem>();
+	IFlytekASRSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekASRSocketSubsystem>();
 	
-	IFlytekSocketSubsystem->CreateSocket(InConfigInfo);
+	IFlytekASRSocketSubsystem->CreateSocket(InConfigInfo);
 	
-	IFlytekSocketSubsystem->SendAudioData(OutHandle, InASRSocketTextDelegate);
+	IFlytekASRSocketSubsystem->SendAudioData(OutHandle, InASRSocketTextDelegate);
 }
 
 void FIFlytekVoiceManage::StopASR_ByWebSocket(int32 InHandle)
 {
 	IFLYTEK_LOG_PRINT(TEXT("Stop ASR."));
 	
-	IFlytekSocketSubsystem->StopSendAudioData(InHandle);
+	IFlytekASRSocketSubsystem->StopSendAudioData(InHandle);
 	
-	IFlytekSocketSubsystem->CloseSocket();
+	IFlytekASRSocketSubsystem->CloseSocket();
+}
+
+void FIFlytekVoiceManage::StartTTS_ByWebSocket(const FIFlytekTTSInfo& InConfigInfo)
+{
+	// 创建子系统，如果已经存在则不会创建新的副本
+	IFlytekTTSSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekTTSSocketSubsystem>();
+
+	IFlytekTTSSocketSubsystem->CreateSocket(InConfigInfo);
 }
 
 void FIFlytekVoiceManage::InitLog()

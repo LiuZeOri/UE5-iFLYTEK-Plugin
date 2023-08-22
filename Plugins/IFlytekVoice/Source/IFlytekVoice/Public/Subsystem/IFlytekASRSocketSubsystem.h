@@ -4,7 +4,7 @@
 #include "IFlytekVoiceType.h"
 #include "IWebSocket.h"
 #include "Engine/Public/Subsystems/GameInstanceSubsystem.h"
-#include "IFlytekSocketSubsystem.generated.h"
+#include "IFlytekASRSocketSubsystem.generated.h"
 
 /**
  * 科大讯飞ASR实时语音转写Socket子系统
@@ -14,13 +14,11 @@
  * 作者开发文档：https://www.yuque.com/u28988421/ad9c7i/sa1fatpyzrg79994#VbRPQ
  */
 UCLASS()
-class IFLYTEKVOICE_API UIFlytekSocketSubsystem : public UGameInstanceSubsystem
+class IFLYTEKVOICE_API UIFlytekASRSocketSubsystem : public UGameInstanceSubsystem
 {
 	GENERATED_BODY()
 
 public:
-	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
-
 	void CreateSocket(const FIFlytekASRInfo& InConfigInfo);
 	void CloseSocket();
 	
@@ -36,7 +34,7 @@ protected:
 	void OnMessageSent(const FString& MessageString);
 
 protected:
-	static TSharedPtr<IWebSocket> Socket;
+	TSharedPtr<IWebSocket> Socket;
 	FASRSocketTextDelegate ASRSocketTextDelegate;
 
 private:

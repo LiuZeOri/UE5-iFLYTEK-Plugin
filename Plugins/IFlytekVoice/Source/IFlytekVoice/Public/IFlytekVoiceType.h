@@ -132,17 +132,20 @@ struct IFLYTEKVOICE_API FIFlytekUserInfo
 
 	// 讯飞开放平台应用ID
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
-	FString appId;
+	FString appID;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
 	FString apiSecret;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
 	FString apiKeyASR;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
+	FString apiKeyTTS;
 };
 
 /**
- * 实时语音转写结构体
+ * 实时语音转写参数结构体
  * 此结构体定义实时语音相关的参数
  * 官方参考文档：https://www.xfyun.cn/doc/asr/rtasr/API.html#%E6%8E%A5%E5%8F%A3%E8%A6%81%E6%B1%82
  */
@@ -213,6 +216,31 @@ public:
 	FString GetPersonalizationParameterString() const;
 	FString GetFieldType() const;
 	FString GetLanguageRecognitionMode() const;
+};
+
+/**
+ * 语音合成参数结构体
+ * 此结构体定义语音合成的参数
+ * 官方参考文档：https://www.xfyun.cn/doc/tts/online_tts/API.html#%E6%8E%A5%E5%8F%A3%E8%B0%83%E7%94%A8%E6%B5%81%E7%A8%8B
+ */
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FIFlytekTTSInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	FIFlytekTTSInfo();
+
+	// 请求地址
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	FString serverURL;
+
+	// 服务器协议
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	FString serverProtocol;
+
+	// 请求主机
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
+	FString host;
 };
 
 USTRUCT(BlueprintType)
@@ -297,4 +325,4 @@ struct IFLYTEKVOICE_API FASRSocketResponded
 	int32 rl;
 };
 
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, FASRSocketResponded, ASRSocketResponded, FString, originalText, FString, translateText);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);

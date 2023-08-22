@@ -1,4 +1,4 @@
-﻿#include "Core/IFlytekSocketSubsystem.h"
+﻿#include "Subsystem/IFlytekASRSocketSubsystem.h"
 
 #include "IFlytekVoiceConfig.h"
 #include "IFlytekVoiceMacro.h"
@@ -7,8 +7,6 @@
 #include "WebSocketsModule.h"
 #include "JSON/IFlytekVoiceJson.h"
 #include "Sound/RecordingCollection.h"
-
-TSharedPtr<IWebSocket> UIFlytekSocketSubsystem::Socket = nullptr;
 
 struct FASRAbandonable : FNonAbandonableTask
 {
@@ -38,12 +36,7 @@ protected:
 	FSimpleDelegate ThreadDelegate;
 };
 
-void UIFlytekSocketSubsystem::Initialize(FSubsystemCollectionBase& Collection)
-{
-	Super::Initialize(Collection);
-}
-
-void UIFlytekSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
+void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
 {
 	// 握手阶段，设置参数
 	
@@ -52,7 +45,7 @@ void UIFlytekSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
 	// 1.获取baseString，baseString由appid和当前时间戳ts拼接而成
 	// 获取当前时间戳
 	int32 ts = FDateTime::Now().UtcNow().ToUnixTimestamp();
-	FString baseString = FString::Printf(TEXT("%s%i"), *FIFlytekVoiceConfig::Get()->UserInfo.appId, ts);
+	FString baseString = FString::Printf(TEXT("%s%i"), *FIFlytekVoiceConfig::Get()->UserInfo.appID, ts);
 
 	// 2.对baseString进行MD5
 	baseString = FMD5::HashAnsiString(*baseString);
@@ -70,7 +63,7 @@ void UIFlytekSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
 	// 拼接请求URL
 	FString URL = FString::Printf(TEXT("%s?appid=%s&ts=%i&signa=%s"),
 		*InConfigInfo.serverURL,
-		*FIFlytekVoiceConfig::Get()->UserInfo.appId,
+		*FIFlytekVoiceConfig::Get()->UserInfo.appID,
 		ts,
 		*signa);
 
@@ -115,16 +108,16 @@ void UIFlytekSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
 	// 建立Socket连接
 	Socket = FWebSocketsModule::Get().CreateWebSocket(URL, InConfigInfo.serverProtocol);
 
-	Socket->OnConnected().AddUObject(this, &UIFlytekSocketSubsystem::OnConnected);
-	Socket->OnConnectionError().AddUObject(this, &UIFlytekSocketSubsystem::OnConnectionError);
-	Socket->OnClosed().AddUObject(this, &UIFlytekSocketSubsystem::OnClosed);
-	Socket->OnMessage().AddUObject(this, &UIFlytekSocketSubsystem::OnMessage);
-	Socket->OnMessageSent().AddUObject(this, &UIFlytekSocketSubsystem::OnMessageSent);
+	Socket->OnConnected().AddUObject(this, &UIFlytekASRSocketSubsystem::OnConnected);
+	Socket->OnConnectionError().AddUObject(this, &UIFlytekASRSocketSubsystem::OnConnectionError);
+	Socket->OnClosed().AddUObject(this, &UIFlytekASRSocketSubsystem::OnClosed);
+	Socket->OnMessage().AddUObject(this, &UIFlytekASRSocketSubsystem::OnMessage);
+	Socket->OnMessageSent().AddUObject(this, &UIFlytekASRSocketSubsystem::OnMessageSent);
 
 	Socket->Connect();
 }
 
-void UIFlytekSocketSubsystem::CloseSocket()
+void UIFlytekASRSocketSubsystem::CloseSocket()
 {
 	if (Socket.IsValid() && Socket->IsConnected())
 	{
@@ -132,7 +125,7 @@ void UIFlytekSocketSubsystem::CloseSocket()
 	}
 }
 
-void UIFlytekSocketSubsystem::SendAudioData(int32& OutHandle, FASRSocketTextDelegate InASRSocketTextDelegate)
+void UIFlytekASRSocketSubsystem::SendAudioData(int32& OutHandle, FASRSocketTextDelegate InASRSocketTextDelegate)
 {
 	OutHandle = GetASRHandle();
 
@@ -143,11 +136,11 @@ void UIFlytekSocketSubsystem::SendAudioData(int32& OutHandle, FASRSocketTextDele
 	dstFinalString = TEXT("");
 	
 	(new FAutoDeleteAsyncTask<FASRAbandonable>(
-		FSimpleDelegate::CreateUObject(this, &UIFlytekSocketSubsystem::SendAudioData_Thread,
+		FSimpleDelegate::CreateUObject(this, &UIFlytekASRSocketSubsystem::SendAudioData_Thread,
 		OutHandle)))->StartBackgroundTask();
 }
 
-void UIFlytekSocketSubsystem::SendAudioData_Thread(int32 InHandle)
+void UIFlytekASRSocketSubsystem::SendAudioData_Thread(int32 InHandle)
 {
 	if (IsASRHandleExist(InHandle))
 	{
@@ -197,7 +190,7 @@ void UIFlytekSocketSubsystem::SendAudioData_Thread(int32 InHandle)
 	RemoveASRHandle(InHandle);
 }
 
-void UIFlytekSocketSubsystem::StopSendAudioData(int32 InHandle)
+void UIFlytekASRSocketSubsystem::StopSendAudioData(int32 InHandle)
 {
 	FScopeLock ScopeLock(&ASRMutex);
 	if (bool* InValue = ASRPool.Find(InHandle))
@@ -212,25 +205,25 @@ void UIFlytekSocketSubsystem::StopSendAudioData(int32 InHandle)
 	ASRSocketTextDelegate.Clear();
 }
 
-void UIFlytekSocketSubsystem::OnConnected()
+void UIFlytekASRSocketSubsystem::OnConnected()
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s"), *FString(__FUNCTION__));
 }
 
-void UIFlytekSocketSubsystem::OnConnectionError(const FString& Error)
+void UIFlytekASRSocketSubsystem::OnConnectionError(const FString& Error)
 {
 	IFLYTEK_ERROR_PRINT(TEXT("%s Error:%s"), *FString(__FUNCTION__), *Error);
 
 	ASRSocketTextDelegate.Clear();
 }
 
-void UIFlytekSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
+void UIFlytekASRSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s StatusCode:%d Reason:%s bWasClean:%d"),
 		*FString(__FUNCTION__), StatusCode, *Reason, bWasClean);
 }
 
-void UIFlytekSocketSubsystem::OnMessage(const FString& Message)
+void UIFlytekASRSocketSubsystem::OnMessage(const FString& Message)
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
 
@@ -263,12 +256,12 @@ void UIFlytekSocketSubsystem::OnMessage(const FString& Message)
 	}
 }
 
-void UIFlytekSocketSubsystem::OnMessageSent(const FString& MessageString)
+void UIFlytekASRSocketSubsystem::OnMessageSent(const FString& MessageString)
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s MessageString:%s"), *FString(__FUNCTION__), *MessageString);
 }
 
-int32 UIFlytekSocketSubsystem::GetASRHandle()
+int32 UIFlytekASRSocketSubsystem::GetASRHandle()
 {
 	FScopeLock ScopeLock(&ASRMutex);
 
@@ -278,14 +271,14 @@ int32 UIFlytekSocketSubsystem::GetASRHandle()
 	return InHandle;
 }
 
-bool UIFlytekSocketSubsystem::RemoveASRHandle(int32 InHandle)
+bool UIFlytekASRSocketSubsystem::RemoveASRHandle(int32 InHandle)
 {
 	FScopeLock ScopeLock(&ASRMutex);
 
 	return ASRPool.Remove(InHandle) != 0;
 }
 
-bool UIFlytekSocketSubsystem::FindASRHandle(int32 InHandle)
+bool UIFlytekASRSocketSubsystem::FindASRHandle(int32 InHandle)
 {
 	FScopeLock ScopeLock(&ASRMutex);
 	if (bool* InValue = ASRPool.Find(InHandle))
@@ -295,12 +288,12 @@ bool UIFlytekSocketSubsystem::FindASRHandle(int32 InHandle)
 	return true;
 }
 
-bool UIFlytekSocketSubsystem::IsASRHandleExist(int32 InHandle) const
+bool UIFlytekASRSocketSubsystem::IsASRHandleExist(int32 InHandle) const
 {
 	return ASRPool.Find(InHandle) != nullptr;
 }
 
-int32 UIFlytekSocketSubsystem::CreateASRUniqueHandle()
+int32 UIFlytekASRSocketSubsystem::CreateASRUniqueHandle()
 {
 	int32 Index = FMath::RandRange(0, 999999999);
 
