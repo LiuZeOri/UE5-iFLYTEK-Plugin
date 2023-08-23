@@ -11,7 +11,7 @@ void UIFlytekVoiceBPLibrary::StopASR_ByWebSocket(int32 InHandle)
 	FIFlytekVoiceManage::Get()->StopASR_ByWebSocket(InHandle);
 }
 
-void UIFlytekVoiceBPLibrary::StartTTS_ByWebSocket(const FIFlytekTTSInfo& InConfigInfo)
+void UIFlytekVoiceBPLibrary::StartTTS_ByWebSocket(const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay, bool bSaveToFile, const FString& filePath)
 {
-	FIFlytekVoiceManage::Get()->StartTTS_ByWebSocket(InConfigInfo);
+	FIFlytekVoiceManage::Get()->StartTTS_ByWebSocket(content, InConfigInfo, bAutoPlay, bSaveToFile, filePath);
 }

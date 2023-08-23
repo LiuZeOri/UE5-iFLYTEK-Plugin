@@ -9,5 +9,8 @@ namespace IFlytekVoiceJson
 	IFLYTEKVOICE_API void ASRSocketRespondedToString(const FString& JsonString, FASRSocketResponded& OutResponded);
 
 	// 序列化语音合成TTS上传数据
-	IFLYTEKVOICE_API void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, FString& OutJsonString);
+	IFLYTEKVOICE_API void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, const FString& content, FString& OutJsonString);
+	
+	// 反序列化语音合成TTS返回的Json数据
+	IFLYTEKVOICE_API void TTSSocketRespondedToString(const FString& JsonString, FTTSSocketResponded& OutResponded);
 }

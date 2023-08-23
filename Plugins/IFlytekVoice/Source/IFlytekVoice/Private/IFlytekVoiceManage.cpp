@@ -58,14 +58,14 @@ void FIFlytekVoiceManage::StopASR_ByWebSocket(int32 InHandle)
 	IFlytekASRSocketSubsystem->CloseSocket();
 }
 
-void FIFlytekVoiceManage::StartTTS_ByWebSocket(const FIFlytekTTSInfo& InConfigInfo)
+void FIFlytekVoiceManage::StartTTS_ByWebSocket(const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay, bool bSaveToFile, const FString& filePath)
 {
 	// 创建子系统，如果已经存在则不会创建新的副本
 	IFlytekTTSSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekTTSSocketSubsystem>();
 
-	IFlytekTTSSocketSubsystem->CreateSocket(InConfigInfo);
+	IFlytekTTSSocketSubsystem->CreateSocket(InConfigInfo, bAutoPlay, bSaveToFile, filePath);
 	
-	IFlytekTTSSocketSubsystem->SendData(InConfigInfo);
+	IFlytekTTSSocketSubsystem->SendData(content, InConfigInfo);
 }
 
 void FIFlytekVoiceManage::InitLog()

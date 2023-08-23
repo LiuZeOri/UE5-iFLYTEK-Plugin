@@ -7,10 +7,20 @@
 #include "Util/hmacsha256.h"
 #include "JSON/IFlytekVoiceJson.h"
 #include "WebSocketsModule.h"
+#include "Sound/SoundHandle.h"
+#include "Sound/SoundFormatHandle.h"
 
 
-void UIFlytekTTSSocketSubsystem::CreateSocket(const FIFlytekTTSInfo& InConfigInfo)
+void UIFlytekTTSSocketSubsystem::CreateSocket(const FIFlytekTTSInfo& InConfigInfo, bool bInAutoPlay, bool bInSaveToFile, const FString& InFilePath)
 {
+	bAutoPlay = bInAutoPlay;
+	bSaveToFile = bInSaveToFile;
+	filePath = InFilePath;
+	if (InConfigInfo.GetAudioSampleRateString().Equals(TEXT("audio/L16;rate=8000")))
+		sampleRate = 8000;
+	else if (InConfigInfo.GetAudioSampleRateString().Equals(TEXT("audio/L16;rate=16000")))
+		sampleRate = 16000;
+	
 	// 握手阶段，设置参数
 
 	// 接口鉴权
@@ -67,11 +77,11 @@ void UIFlytekTTSSocketSubsystem::CloseSocket()
 	}
 }
 
-void UIFlytekTTSSocketSubsystem::SendData(const FIFlytekTTSInfo& InConfigInfo)
+void UIFlytekTTSSocketSubsystem::SendData(const FString& content, const FIFlytekTTSInfo& InConfigInfo)
 {
 	// 上传数据
 	FString sendJsonString;
-	IFlytekVoiceJson::TTSSocketRequestToJson(InConfigInfo, sendJsonString);
+	IFlytekVoiceJson::TTSSocketRequestToJson(InConfigInfo, GetAfterEncodeText(content), sendJsonString);
 	Socket->Send(sendJsonString);
 }
 
@@ -93,10 +103,65 @@ void UIFlytekTTSSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reaso
 
 void UIFlytekTTSSocketSubsystem::OnMessage(const FString& Message)
 {
-	IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
+	//IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
+
+	// 解析Json数据
+	FTTSSocketResponded Responded;
+	IFlytekVoiceJson::TTSSocketRespondedToString(Message, Responded);
+
+	// 合成成功
+	if (Responded.code == 0)
+	{
+		PCMData.Append(Responded.GetAudioDecodeData());
+	}
+
+	// 合成完毕
+	if (Responded.status == 2)
+	{
+
+		SoundFormatHandle::PCMToWAVByMemory(1, sampleRate, PCMData, WAVData);
+		
+		// 内存播放音频
+		if (bAutoPlay)
+		{
+			const uint8* SoundPtr = WAVData.GetData();
+			SoundHandle::PlaySoundByMemory(SoundPtr);
+		}
+
+		// 保存文件
+		if (bSaveToFile)
+		{
+			FFileHelper::SaveArrayToFile(WAVData, *filePath);
+		}
+		
+		// 关闭子系统
+		CloseSocket();
+
+		// 清空，释放内存
+		PCMData.Empty();
+		PCMData.Shrink();
+		WAVData.Empty();
+		WAVData.Shrink();
+	}
 }
 
 void UIFlytekTTSSocketSubsystem::OnMessageSent(const FString& MessageString)
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s MessageString:%s"), *FString(__FUNCTION__), *MessageString);
+}
+
+FString UIFlytekTTSSocketSubsystem::GetAfterEncodeText(const FString& InText)
+{
+	// 将FString转换为UTF-16编码的字节数组
+	TArray<uint8> OutArray;
+	const TCHAR* CharPtr = *InText;
+	while (*CharPtr)
+	{
+		const TCHAR Char = *CharPtr++;
+		// 转换字符到UTF-16编码并处理字节顺序（小端）
+		OutArray.Add(static_cast<uint8>(Char & 0xFF));
+		OutArray.Add(static_cast<uint8>((Char >> 8) & 0xFF));
+	}
+
+	return FBase64::Encode(OutArray.GetData(), OutArray.Num());
 }

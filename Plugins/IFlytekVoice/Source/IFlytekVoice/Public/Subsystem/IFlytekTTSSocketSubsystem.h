@@ -17,10 +17,10 @@ class IFLYTEKVOICE_API UIFlytekTTSSocketSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 
 public:
-	void CreateSocket(const FIFlytekTTSInfo& InConfigInfo);
+	void CreateSocket(const FIFlytekTTSInfo& InConfigInfo, bool bInAutoPlay = true, bool bInSaveToFile = false, const FString& InFilePath = TEXT(""));
 	void CloseSocket();
 
-	void SendData(const FIFlytekTTSInfo& InConfigInfo);
+	void SendData(const FString& content, const FIFlytekTTSInfo& InConfigInfo);
 
 protected:
 	void OnConnected();
@@ -29,7 +29,17 @@ protected:
 	void OnMessage(const FString& Message);
 	void OnMessageSent(const FString& MessageString);
 
+private:
+	FString GetAfterEncodeText(const FString& InText);
+
 protected:
 	TSharedPtr<IWebSocket> Socket;
 
+private:
+	bool bAutoPlay;
+	bool bSaveToFile;
+	FString filePath;
+	int32 sampleRate;
+	TArray<uint8> PCMData;
+	TArray<uint8> WAVData;
 };

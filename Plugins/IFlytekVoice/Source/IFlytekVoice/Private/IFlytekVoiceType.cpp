@@ -237,22 +237,6 @@ FString FIFlytekTTSInfo::GetNumberPronunciationTypeString() const
 	}
 }
 
-FString FIFlytekTTSInfo::GetAfterEncodeText() const
-{
-	// 将FString转换为ANSI字符串
-	const char* AnsiString = TCHAR_TO_ANSI(*text);
-
-	// 将ANSI字符串转换为二进制数据
-	TArray<uint8> BinaryData;
-	for (int32 Index = 0; AnsiString[Index] != '\0'; Index++)
-	{
-		BinaryData.Add(static_cast<uint8>(AnsiString[Index]));
-	}
-
-	// 对二进制数据进行base64编码
-	return FBase64::Encode(BinaryData.GetData(), BinaryData.Num());
-}
-
 FRecordingConfig::FRecordingConfig()
 {
 	SampleRate = 16000;
@@ -266,4 +250,17 @@ FASRSocketResponded::FASRSocketResponded()
 {
 	isEnd = false;
 	type = -1;
+}
+
+FTTSSocketResponded::FTTSSocketResponded()
+{
+	code = -1;
+}
+
+TArray<uint8> FTTSSocketResponded::GetAudioDecodeData() const
+{
+	TArray<uint8> audioDecodeData;
+	FBase64::Decode(audio, audioDecodeData);
+	
+	return audioDecodeData;
 }

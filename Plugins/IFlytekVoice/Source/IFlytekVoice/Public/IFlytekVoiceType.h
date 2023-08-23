@@ -122,7 +122,7 @@ enum class ELanguageRecognitionMode : uint8
 UENUM(BlueprintType)
 enum class EAudioEncodingType : uint8
 {
-	// 未压缩的pcm
+	// 未压缩的pcm（目前只支持pcm编码，保存为wav文件）
 	raw,
 	// mp3 (当aue=lame时需传参sfl=1)
 	lame,
@@ -322,16 +322,11 @@ struct IFLYTEKVOICE_API FIFlytekTTSInfo
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
 	ENumberPronunciationType rdn;
 
-	// 合成文本内容
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TTSInfo")
-	FString text;
-
 public:
 	FString GetAudioEncodingTypeString() const;
 	FString GetAudioSampleRateString() const;
 	FString GetEnglishPronunciationTypeString() const;
 	FString GetNumberPronunciationTypeString() const;
-	FString GetAfterEncodeText() const;
 };
 
 USTRUCT(BlueprintType)
@@ -414,6 +409,32 @@ struct IFLYTEKVOICE_API FASRSocketResponded
 	// 分离的角色编号，需开启角色分离的功能才返回对应的分离角色编号
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASR|Responded")
 	int32 rl;
+};
+
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FTTSSocketResponded
+{
+	GENERATED_USTRUCT_BODY()
+
+	FTTSSocketResponded();
+
+	// 返回码，0表示成功，其它表示异常
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TTS|Responded")
+	int32 code;
+
+	// 结果描述信息
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TTS|Responded")
+	FString message;
+
+	// 合成后的音频片段，采用base64编码
+	FString audio;
+
+	// 结果描述信息
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TTS|Responded")
+	int32 status;
+
+public:
+	TArray<uint8> GetAudioDecodeData() const;
 };
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);

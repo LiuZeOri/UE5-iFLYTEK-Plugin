@@ -24,7 +24,7 @@ public:
 	void StopASR_ByWebSocket(int32 InHandle);
 
 	// WebSocket方法实现语音合成
-	void StartTTS_ByWebSocket(const FIFlytekTTSInfo& InConfigInfo);
+	void StartTTS_ByWebSocket(const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));
 
 protected:
 	void InitLog();

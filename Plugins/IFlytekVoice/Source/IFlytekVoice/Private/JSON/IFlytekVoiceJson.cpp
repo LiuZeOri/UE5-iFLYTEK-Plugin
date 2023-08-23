@@ -40,7 +40,7 @@ namespace IFlytekVoiceJson
 		}
 	}
 
-	void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, FString& OutJsonString)
+	void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, const FString& content, FString& OutJsonString)
 	{
 		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
 			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutJsonString);
@@ -76,7 +76,7 @@ namespace IFlytekVoiceJson
 				if (InParam.bgs)
 					JsonWriter->WriteValue(TEXT("bgs"), 1);
 				// 设置文本编码格式
-				JsonWriter->WriteValue(TEXT("tte"), TEXT("UTF8"));
+				JsonWriter->WriteValue(TEXT("tte"), TEXT("UNICODE"));
 				// 设置英文发音方式
 				if (!InParam.GetEnglishPronunciationTypeString().Equals(TEXT("-1")))
 					JsonWriter->WriteValue(TEXT("reg"), InParam.GetEnglishPronunciationTypeString());
@@ -89,11 +89,32 @@ namespace IFlytekVoiceJson
 			JsonWriter->WriteObjectStart(TEXT("data"));
 			{
 				JsonWriter->WriteValue(TEXT("status"), 2);
-				JsonWriter->WriteValue(TEXT("text"), InParam.GetAfterEncodeText());
+				JsonWriter->WriteValue(TEXT("text"), content);
 			}
 			JsonWriter->WriteObjectEnd(); //}
 		}
 		JsonWriter->WriteObjectEnd();
 		JsonWriter->Close();
+	}
+
+	void TTSSocketRespondedToString(const FString& JsonString, FTTSSocketResponded& OutResponded)
+	{
+		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+		TSharedPtr<FJsonValue> ReadRoot;
+
+		if (FJsonSerializer::Deserialize(JsonReader, ReadRoot))
+		{
+			if (TSharedPtr<FJsonObject> InJsonObject = ReadRoot->AsObject())
+			{
+				OutResponded.code = InJsonObject->GetIntegerField(TEXT("code"));
+				OutResponded.message = InJsonObject->GetStringField(TEXT("message"));
+
+				if (const TSharedPtr<FJsonObject>& DataObject = InJsonObject->GetObjectField(TEXT("data")))
+				{
+					OutResponded.audio = DataObject->GetStringField(TEXT("audio"));
+					OutResponded.status = DataObject->GetIntegerField(TEXT("status"));
+				}
+			}
+		}
 	}
 }
