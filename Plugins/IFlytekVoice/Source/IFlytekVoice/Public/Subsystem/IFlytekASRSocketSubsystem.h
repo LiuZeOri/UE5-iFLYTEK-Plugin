@@ -19,10 +19,10 @@ class IFLYTEKVOICE_API UIFlytekASRSocketSubsystem : public UGameInstanceSubsyste
 	GENERATED_BODY()
 
 public:
-	void CreateSocket(const FIFlytekASRInfo& InConfigInfo);
+	void CreateSocket(const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate);
 	void CloseSocket();
 	
-	void SendAudioData(int32& OutHandle, FASRSocketTextDelegate InASRSocketTextDelegate);
+	void SendAudioData(int32& OutHandle);
 	void SendAudioData_Thread(int32 InHandle);
 	void StopSendAudioData(int32 InHandle);
 

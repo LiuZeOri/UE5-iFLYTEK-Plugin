@@ -1,9 +1,9 @@
 ﻿#include "IFlytekVoiceManage.h"
 
-#include "AITestsCommon.h"
 #include "IFlytekVoiceConfig.h"
 #include "IFlytekVoiceLog.h"
 #include "IFlytekVoiceMacro.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "Subsystem/IFlytekASRSocketSubsystem.h"
 #include "Subsystem/IFlytekTTSSocketSubsystem.h"
@@ -39,14 +39,19 @@ void FIFlytekVoiceManage::Destroy()
 	Manage = NULL;
 }
 
-void FIFlytekVoiceManage::StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate)
+void FIFlytekVoiceManage::StartASR_ByWebSocket(const UObject* WorldContextObject, int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate)
 {
+	if (!WorldContextObject)
+	{
+		return;
+	}
+	
 	// 创建子系统，如果已经存在则不会创建新的副本
-	IFlytekASRSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekASRSocketSubsystem>();
+	IFlytekASRSocketSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekASRSocketSubsystem>();
 	
-	IFlytekASRSocketSubsystem->CreateSocket(InConfigInfo);
+	IFlytekASRSocketSubsystem->CreateSocket(InConfigInfo, InASRSocketTextDelegate);
 	
-	IFlytekASRSocketSubsystem->SendAudioData(OutHandle, InASRSocketTextDelegate);
+	IFlytekASRSocketSubsystem->SendAudioData(OutHandle);
 }
 
 void FIFlytekVoiceManage::StopASR_ByWebSocket(int32 InHandle)
@@ -58,10 +63,15 @@ void FIFlytekVoiceManage::StopASR_ByWebSocket(int32 InHandle)
 	IFlytekASRSocketSubsystem->CloseSocket();
 }
 
-void FIFlytekVoiceManage::StartTTS_ByWebSocket(const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay, bool bSaveToFile, const FString& filePath)
+void FIFlytekVoiceManage::StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay, bool bSaveToFile, const FString& filePath)
 {
+	if (!WorldContextObject)
+	{
+		return;
+	}
+	
 	// 创建子系统，如果已经存在则不会创建新的副本
-	IFlytekTTSSocketSubsystem = FAITestHelpers::GetWorld()->GetGameInstance()->GetSubsystem<UIFlytekTTSSocketSubsystem>();
+	IFlytekTTSSocketSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTTSSocketSubsystem>();
 
 	IFlytekTTSSocketSubsystem->CreateSocket(InConfigInfo, bAutoPlay, bSaveToFile, filePath);
 	

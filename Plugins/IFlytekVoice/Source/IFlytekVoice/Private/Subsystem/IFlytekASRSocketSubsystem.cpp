@@ -36,8 +36,11 @@ protected:
 	FSimpleDelegate ThreadDelegate;
 };
 
-void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo)
+void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate)
 {
+	// 加载模块
+	FModuleManager::Get().LoadModuleChecked("WebSockets");
+	
 	// 握手阶段，设置参数
 	
 	// signa生成
@@ -115,6 +118,9 @@ void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInf
 	Socket->OnMessageSent().AddUObject(this, &UIFlytekASRSocketSubsystem::OnMessageSent);
 
 	Socket->Connect();
+
+	// 绑定委托
+	ASRSocketTextDelegate = InASRSocketTextDelegate;
 }
 
 void UIFlytekASRSocketSubsystem::CloseSocket()
@@ -125,16 +131,10 @@ void UIFlytekASRSocketSubsystem::CloseSocket()
 	}
 }
 
-void UIFlytekASRSocketSubsystem::SendAudioData(int32& OutHandle, FASRSocketTextDelegate InASRSocketTextDelegate)
+void UIFlytekASRSocketSubsystem::SendAudioData(int32& OutHandle)
 {
 	OutHandle = GetASRHandle();
 
-	// 绑定委托
-	ASRSocketTextDelegate = InASRSocketTextDelegate;
-
-	srcFinalString = TEXT("");
-	dstFinalString = TEXT("");
-	
 	(new FAutoDeleteAsyncTask<FASRAbandonable>(
 		FSimpleDelegate::CreateUObject(this, &UIFlytekASRSocketSubsystem::SendAudioData_Thread,
 		OutHandle)))->StartBackgroundTask();
@@ -221,6 +221,12 @@ void UIFlytekASRSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reaso
 {
 	IFLYTEK_WARNING_PRINT(TEXT("%s StatusCode:%d Reason:%s bWasClean:%d"),
 		*FString(__FUNCTION__), StatusCode, *Reason, bWasClean);
+
+	// 清空，释放内存
+	srcFinalString.Empty();
+	srcFinalString.Shrink();
+	dstFinalString.Empty();
+	dstFinalString.Shrink();
 }
 
 void UIFlytekASRSocketSubsystem::OnMessage(const FString& Message)

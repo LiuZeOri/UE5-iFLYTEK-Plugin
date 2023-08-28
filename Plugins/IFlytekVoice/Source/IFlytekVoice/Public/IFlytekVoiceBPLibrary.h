@@ -16,8 +16,8 @@ class IFLYTEKVOICE_API UIFlytekVoiceBPLibrary : public UObject
 
 public:
 	// 开始实时语音转写ASR（WebSocket方法）
-	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|ASR|WebSocket")
-	static void StartASR_ByWebSocket(int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate);
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|ASR|WebSocket")
+	static void StartASR_ByWebSocket(const UObject* WorldContextObject, int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate);
 
 	// 结束实时语音转写ASR（WebSocket方法）
 	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|ASR|WebSocket")
@@ -31,7 +31,7 @@ public:
 	 * @param bSaveToFile 是否保存为本地文件（只支持保存为wav格式）
 	 * @param filePath 保存文件路径，如：E:\xxx.wav
 	 */
-	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|TTS|WebSocket")
-	static void StartTTS_ByWebSocket(const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TTS|WebSocket")
+	static void StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));
 
 };

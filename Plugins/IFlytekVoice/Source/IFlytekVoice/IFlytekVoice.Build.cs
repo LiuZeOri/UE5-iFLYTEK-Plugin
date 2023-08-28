@@ -38,8 +38,7 @@ public class IFlytekVoice : ModuleRules
 			{
 				"CoreUObject",
 				"Engine",
-				"WebSockets", 
-				"AITestSuite",
+				"WebSockets",
 				"Json",
 				// ... add private dependencies that you statically link with here ...	
 			}
