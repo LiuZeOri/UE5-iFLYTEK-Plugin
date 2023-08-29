@@ -161,6 +161,13 @@ FString FIFlytekASRInfo::GetLanguageRecognitionMode() const
 	}
 }
 
+FIFlytekASDInfo::FIFlytekASDInfo()
+{
+	serverURL = TEXT("ws://iat-api.xfyun.cn/v2/iat");
+	serverProtocol = TEXT("ws");
+	host = TEXT("iat-api.xfyun.cn");
+};
+
 FIFlytekTTSInfo::FIFlytekTTSInfo()
 {
 	serverURL = TEXT("ws://tts-api.xfyun.cn/v2/tts");

@@ -190,7 +190,7 @@ struct IFLYTEKVOICE_API FIFlytekUserInfo
 
 /**
  * 实时语音转写参数结构体
- * 此结构体定义实时语音相关的参数
+ * 此结构体定义实时语音转写相关的参数
  * 官方参考文档：https://www.xfyun.cn/doc/asr/rtasr/API.html#%E6%8E%A5%E5%8F%A3%E8%A6%81%E6%B1%82
  */
 USTRUCT(BlueprintType)
@@ -260,6 +260,31 @@ public:
 	FString GetPersonalizationParameterString() const;
 	FString GetFieldType() const;
 	FString GetLanguageRecognitionMode() const;
+};
+
+/**
+ * 实时语音听写参数结构体
+ * 此结构体定义实时语音听写相关的参数
+ * 官方参考文档：https://www.xfyun.cn/doc/asr/voicedictation/API.html#%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E
+ */
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FIFlytekASDInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	FIFlytekASDInfo();
+
+	// 请求地址
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	FString serverURL;
+
+	// 服务器协议
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	FString serverProtocol;
+
+	// 请求主机
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	FString host;
 };
 
 /**
@@ -438,3 +463,4 @@ public:
 };
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);
+DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASDSocketTextDelegate, const FASRSocketResponded&, ASDSocketResponded, const FString&, originalText, const FString&, translateText);

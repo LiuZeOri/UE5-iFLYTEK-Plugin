@@ -83,6 +83,11 @@ void FIFlytekVoiceConfig::Init(const FString& InPath)
 		GetStringValue(IFlytekTTSSection, TEXT("serverURL"), TTSInfo.serverURL);
 		GetStringValue(IFlytekTTSSection, TEXT("serverProtocol"), TTSInfo.serverProtocol);
 		GetStringValue(IFlytekTTSSection, TEXT("host"), TTSInfo.host);
+
+		// [IFlytekASDConfig] 配置
+		const TCHAR* IFlytekASDSection = TEXT("IFlytekASDConfig");
+		GetStringValue(IFlytekASDSection, TEXT("serverURL"), ASDInfo.serverURL);
+		GetStringValue(IFlytekASDSection, TEXT("serverProtocol"), ASDInfo.serverProtocol);
 	}
 }
 

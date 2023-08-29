@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Subsystem/IFlytekASRSocketSubsystem.h"
+#include "Subsystem/IFlytekASDSocketSubsystem.h"
 #include "Subsystem/IFlytekTTSSocketSubsystem.h"
 
 FIFlytekVoiceManage* FIFlytekVoiceManage::Manage = nullptr;
@@ -61,6 +62,22 @@ void FIFlytekVoiceManage::StopASR_ByWebSocket(int32 InHandle)
 	IFlytekASRSocketSubsystem->StopSendAudioData(InHandle);
 	
 	IFlytekASRSocketSubsystem->CloseSocket();
+}
+
+void FIFlytekVoiceManage::StartASD_ByWebSocket(const UObject* WorldContextObject, int32& OutHandle,
+	const FIFlytekASDInfo& InConfigInfo, FASDSocketTextDelegate InASDSocketTextDelegate)
+{
+	if (!WorldContextObject)
+	{
+		return;
+	}
+	
+	// 创建子系统，如果已经存在则不会创建新的副本
+	IFlytekASDSocketSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekASDSocketSubsystem>();
+
+	IFlytekASDSocketSubsystem->CreateSocket(InConfigInfo, InASDSocketTextDelegate);
+	
+	//IFlytekASDSocketSubsystem->SendAudioData(OutHandle);
 }
 
 void FIFlytekVoiceManage::StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay, bool bSaveToFile, const FString& filePath)

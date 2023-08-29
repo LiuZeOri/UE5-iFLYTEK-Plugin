@@ -20,6 +20,7 @@ public:
 
 	FIFlytekUserInfo UserInfo;
 	FIFlytekASRInfo ASRInfo;
+	FIFlytekASDInfo ASDInfo;
 	FIFlytekTTSInfo TTSInfo;
 
 private:
