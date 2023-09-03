@@ -101,17 +101,23 @@ void UIFlytekASDSocketSubsystem::CloseSocket()
 	}
 }
 
-void UIFlytekASDSocketSubsystem::SendAudioData(int32& OutHandle)
+void UIFlytekASDSocketSubsystem::SendAudioData(int32& OutHandle, const FIFlytekASDInfo& InConfigInfo)
 {
 	OutHandle = GetASDHandle();
 
 	(new FAutoDeleteAsyncTask<FASDAbandonable>(
 		FSimpleDelegate::CreateUObject(this, &UIFlytekASDSocketSubsystem::SendAudioData_Thread,
-		OutHandle)))->StartBackgroundTask();
+		OutHandle, InConfigInfo)))->StartBackgroundTask();
 }
 
-void UIFlytekASDSocketSubsystem::SendAudioData_Thread(int32 InHandle)
+void UIFlytekASDSocketSubsystem::SendAudioData_Thread(int32 InHandle, const FIFlytekASDInfo InConfigInfo)
 {
+	// 首帧请求
+	FString sendFirstFrameJsonString;
+	IFlytekVoiceJson::ASDSocketFirstFrameRequestToJson(InConfigInfo, sendFirstFrameJsonString);
+	Socket->Send(sendFirstFrameJsonString);
+
+	// 开始录音
 	if (IsASDHandleExist(InHandle))
 	{
 		// 开始发送实时音频流
@@ -119,11 +125,19 @@ void UIFlytekASDSocketSubsystem::SendAudioData_Thread(int32 InHandle)
 		
 		TSharedPtr<FRecordingCollection> RecordingCollection = FRecordingCollection::CreateRecordingCollection();
 
-		FRecordingConfig InConfig;
-		RecordingCollection->InitConfig(InConfig);
+		// 设置录音采样率
+		FRecordingConfig InRecordingConfig;
+		if (InConfigInfo.format == EAudioFormat::rate8k)
+		{
+			InRecordingConfig.SampleRate = 8000;
+		}
+		
+		RecordingCollection->InitConfig(InRecordingConfig);
 
 		RecordingCollection->StartSpeak();
 
+		// 发送音频数据
+		FString sendJsonString;
 		bool bBreak = FindASDHandle(InHandle);
 		while (!bBreak)
 		{
@@ -147,16 +161,23 @@ void UIFlytekASDSocketSubsystem::SendAudioData_Thread(int32 InHandle)
 	
 				Ptr += Remaining;
 				CurrentIndex += Remaining;
+
+				IFlytekVoiceJson::ASDSocketRequestToJson(InConfigInfo, FBase64::Encode(TmpData, Remaining), sendJsonString);
 	
-				Socket->Send(TmpData, Remaining);
+				Socket->Send(sendJsonString);
 			}
 		}
 
 		RecordingCollection->StopSpeak();
+
+		// 最后一帧请求
+		FString sendLastFrameJsonString;
+		IFlytekVoiceJson::ASDSocketLastFrameRequestToJson(InConfigInfo, sendLastFrameJsonString);
+		Socket->Send(sendLastFrameJsonString);
+
+		IFLYTEK_LOG_PRINT(TEXT("Send Audio done."));
 	}
-
-	IFLYTEK_LOG_PRINT(TEXT("Send Audio done."));
-
+	
 	RemoveASDHandle(InHandle);
 }
 
@@ -168,10 +189,6 @@ void UIFlytekASDSocketSubsystem::StopSendAudioData(int32 InHandle)
 		*InValue = true;
 	}
 
-	// 上传完成后，客户端需发送一个特殊的binary message到服务端作为结束标识
-	std::string end = "{\"end\": true}";
-	std::vector<uint8> binaryData (end.begin(), end.end());
-	Socket->Send(binaryData.data(), binaryData.size());
 	ASDSocketTextDelegate.Clear();
 }
 
@@ -198,34 +215,12 @@ void UIFlytekASDSocketSubsystem::OnMessage(const FString& Message)
 	IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
 
 	// 解析Json数据
-	FASRSocketResponded Responded;
-	IFlytekVoiceJson::ASRSocketRespondedToString(Message, Responded);
-
-	// 返回结果处理
-	if (Responded.type == 0)
-	{
-		IFLYTEK_LOG_PRINT(TEXT("%s | %s"), *Responded.src, *Responded.dst);
-
-		// 结果回调
-		//ASDSocketTextDelegate.ExecuteIfBound(Responded, srcFinalString, dstFinalString);
-	}
-	else if (Responded.type == 1)
-	{
-
-		// 结果回调
-		//ASDSocketTextDelegate.ExecuteIfBound(Responded, srcBuffString, dstBuffString);
-
-	}
-	else if (Responded.type == -1 && !Responded.action.Equals("result"))
-	{
-		// 说明异常，直接回调
-		ASDSocketTextDelegate.ExecuteIfBound(Responded, TEXT(""), TEXT(""));
-	}
+	
 }
 
 void UIFlytekASDSocketSubsystem::OnMessageSent(const FString& MessageString)
 {
-	IFLYTEK_WARNING_PRINT(TEXT("%s MessageString:%s"), *FString(__FUNCTION__), *MessageString);
+	//IFLYTEK_WARNING_PRINT(TEXT("%s MessageString:%s"), *FString(__FUNCTION__), *MessageString);
 }
 
 int32 UIFlytekASDSocketSubsystem::GetASDHandle()

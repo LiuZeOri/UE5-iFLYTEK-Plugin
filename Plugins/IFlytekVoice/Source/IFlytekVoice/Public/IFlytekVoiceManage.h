@@ -26,6 +26,7 @@ public:
 
 	// WebSocket方法实现实时语音听写
 	void StartASD_ByWebSocket(const UObject* WorldContextObject, int32& OutHandle, const FIFlytekASDInfo& InConfigInfo, FASDSocketTextDelegate InASDSocketTextDelegate);
+	void StopASD_ByWebSocket(int32 InHandle);
 
 	// WebSocket方法实现语音合成
 	void StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));

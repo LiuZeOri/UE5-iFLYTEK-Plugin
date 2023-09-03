@@ -40,6 +40,134 @@ namespace IFlytekVoiceJson
 		}
 	}
 
+	void ASDSocketFirstFrameRequestToJson(const FIFlytekASDInfo& InParam, FString& OutJsonString)
+	{
+		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutJsonString);
+
+		JsonWriter->WriteObjectStart();
+		{
+			// common
+			JsonWriter->WriteObjectStart(TEXT("common"));
+			{
+				JsonWriter->WriteValue(TEXT("app_id"), FIFlytekVoiceConfig::Get()->UserInfo.appID);
+			}
+			JsonWriter->WriteObjectEnd(); //}
+
+			// business
+			JsonWriter->WriteObjectStart(TEXT("business"));
+			{
+				// 设置语种
+				if (InParam.bUseMinorLanguage)
+				{
+					JsonWriter->WriteValue(TEXT("language"), InParam.minorLanguage);
+				}
+				else
+				{
+					JsonWriter->WriteValue(TEXT("language"), InParam.GetLanguageTypeString());
+				}
+
+				// 设置应用领域
+				JsonWriter->WriteValue(TEXT("domain"), InParam.GetDomainTypeString());
+
+				// 设置方言
+				JsonWriter->WriteValue(TEXT("accent"), InParam.accent);
+
+				// 设置静默时间
+				if (InParam.bUseVAD)
+				{
+					JsonWriter->WriteValue(TEXT("vad_eos"), InParam.vad_eos);
+				}
+
+				// 设置动态修正
+				if (InParam.bUseDwa)
+				{
+					JsonWriter->WriteValue(TEXT("dwa"), TEXT("wpgs"));
+				}
+
+				// 设置领域个性化参数
+				if (InParam.bUsePersonalizationParameter)
+				{
+					JsonWriter->WriteValue(TEXT("pd"), InParam.GetPersonalizationParameterString());
+				}
+
+				// 设置是否开启标点符号添加
+				if (!InParam.bPunctuation)
+				{
+					JsonWriter->WriteValue(TEXT("ptt"), 0);
+				}
+
+				// 设置字体
+				if (InParam.GetLanguageTypeString().Equals(TEXT("zh_cn")))
+				{
+					JsonWriter->WriteValue(TEXT("rlang"), InParam.GetTypeFaceString());
+				}
+
+				// 设置数字格式规则
+				if (!InParam.bNunum)
+				{
+					JsonWriter->WriteValue(TEXT("nunum"), 0);
+				}
+			}
+			JsonWriter->WriteObjectEnd(); //}
+
+			// data
+			JsonWriter->WriteObjectStart(TEXT("data"));
+			{
+				JsonWriter->WriteValue(TEXT("status"), 0);
+
+				// 设置采样率
+				JsonWriter->WriteValue(TEXT("format"), InParam.GetAudioFormatString());
+				JsonWriter->WriteValue(TEXT("encoding"), TEXT("raw"));
+				JsonWriter->WriteValue(TEXT("audio"), TEXT(""));
+			}
+			JsonWriter->WriteObjectEnd(); //}
+		}
+		JsonWriter->WriteObjectEnd();
+		JsonWriter->Close();
+	}
+
+	void ASDSocketRequestToJson(const FIFlytekASDInfo& InParam, const FString& audioData, FString& OutJsonString)
+	{
+		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutJsonString);
+
+		JsonWriter->WriteObjectStart();
+		{
+			// data
+			JsonWriter->WriteObjectStart(TEXT("data"));
+			{
+				JsonWriter->WriteValue(TEXT("status"), 1);
+
+				// 设置采样率
+				JsonWriter->WriteValue(TEXT("format"), InParam.GetAudioFormatString());
+				JsonWriter->WriteValue(TEXT("encoding"), TEXT("raw"));
+				JsonWriter->WriteValue(TEXT("audio"), audioData);
+			}
+			JsonWriter->WriteObjectEnd(); //}
+		}
+		JsonWriter->WriteObjectEnd();
+		JsonWriter->Close();
+	}
+
+	void ASDSocketLastFrameRequestToJson(const FIFlytekASDInfo& InParam, FString& OutJsonString)
+	{
+		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutJsonString);
+
+		JsonWriter->WriteObjectStart();
+		{
+			// data
+			JsonWriter->WriteObjectStart(TEXT("data"));
+			{
+				JsonWriter->WriteValue(TEXT("status"), 2);
+			}
+			JsonWriter->WriteObjectEnd(); //}
+		}
+		JsonWriter->WriteObjectEnd();
+		JsonWriter->Close();
+	}
+
 	void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, const FString& content, FString& OutJsonString)
 	{
 		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =

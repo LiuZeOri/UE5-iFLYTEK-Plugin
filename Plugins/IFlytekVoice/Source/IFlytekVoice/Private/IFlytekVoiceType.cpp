@@ -166,7 +166,101 @@ FIFlytekASDInfo::FIFlytekASDInfo()
 	serverURL = TEXT("ws://iat-api.xfyun.cn/v2/iat");
 	serverProtocol = TEXT("ws");
 	host = TEXT("iat-api.xfyun.cn");
+	format = EAudioFormat::rate16k;
+	language = EASDLanguageType::zh_cn;
+	bUseMinorLanguage = false;
+	domain = EASDDomainType::iat;
+	accent = TEXT("mandarin");
+	bUseVAD = false;
+	vad_eos = 2000;
+	bUseDwa = false;
+	bUsePersonalizationParameter = false;
+	pd = EPersonalizationParameter::game;
+	bPunctuation = true;
+	typeFace = ETypeFace::zh_cn;
+	bNunum = true;
 };
+
+FString FIFlytekASDInfo::GetLanguageTypeString() const
+{
+	switch (language)
+	{
+	case EASDLanguageType::zh_cn:
+		return TEXT("zh_cn");
+	case EASDLanguageType::en_us:
+		return TEXT("en_us");
+	default:
+		return TEXT("zh_cn");
+	}
+}
+
+FString FIFlytekASDInfo::GetDomainTypeString() const
+{
+	switch (domain)
+	{
+	case EASDDomainType::iat:
+		return TEXT("iat");
+	case EASDDomainType::medical:
+		return TEXT("medical");
+	case EASDDomainType::govSeatAssistant:
+		return TEXT("gov-seat-assistant");
+	case EASDDomainType::seatAssistant:
+		return TEXT("seat-assistant");
+	case EASDDomainType::govAnsys:
+		return TEXT("gov-ansys");
+	case EASDDomainType::govNav:
+		return TEXT("gov-nav");
+	case EASDDomainType::finNav:
+		return TEXT("fin-nav");
+	case EASDDomainType::finAnsys:
+		return TEXT("fin-ansys");
+	default:
+		return TEXT("iat");
+	}
+}
+
+FString FIFlytekASDInfo::GetPersonalizationParameterString() const
+{
+	switch (pd)
+	{
+	case EPersonalizationParameter::game:
+		return TEXT("game");
+	case EPersonalizationParameter::health:
+		return TEXT("health");
+	case EPersonalizationParameter::shopping:
+		return TEXT("shopping");
+	case EPersonalizationParameter::trip:
+		return TEXT("trip");
+	default:
+		return TEXT("game");
+	}
+}
+
+FString FIFlytekASDInfo::GetTypeFaceString() const
+{
+	switch (typeFace)
+	{
+	case ETypeFace::zh_cn:
+		return TEXT("zh-cn");
+	case ETypeFace::zh_hk:
+		return TEXT("zh-hk");
+	default:
+		return TEXT("zh-cn");
+	}
+}
+
+FString FIFlytekASDInfo::GetAudioFormatString() const
+{
+	switch (format)
+	{
+	case EAudioSampleRate::rate8k:
+		return TEXT("audio/L16;rate=8000");
+	case EAudioSampleRate::rate16k:
+		return TEXT("audio/L16;rate=16000");
+	default:
+		return TEXT("audio/L16;rate=16000");
+	}
+}
 
 FIFlytekTTSInfo::FIFlytekTTSInfo()
 {

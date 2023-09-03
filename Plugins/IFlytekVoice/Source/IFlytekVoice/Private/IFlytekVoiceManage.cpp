@@ -77,7 +77,16 @@ void FIFlytekVoiceManage::StartASD_ByWebSocket(const UObject* WorldContextObject
 
 	IFlytekASDSocketSubsystem->CreateSocket(InConfigInfo, InASDSocketTextDelegate);
 	
-	//IFlytekASDSocketSubsystem->SendAudioData(OutHandle);
+	IFlytekASDSocketSubsystem->SendAudioData(OutHandle, InConfigInfo);
+}
+
+void FIFlytekVoiceManage::StopASD_ByWebSocket(int32 InHandle)
+{
+	IFLYTEK_LOG_PRINT(TEXT("Stop ASD."));
+	
+	IFlytekASDSocketSubsystem->StopSendAudioData(InHandle);
+	
+	IFlytekASDSocketSubsystem->CloseSocket();
 }
 
 void FIFlytekVoiceManage::StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay, bool bSaveToFile, const FString& filePath)

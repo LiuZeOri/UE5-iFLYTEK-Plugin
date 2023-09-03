@@ -183,9 +183,14 @@ void UIFlytekASRSocketSubsystem::SendAudioData_Thread(int32 InHandle)
 		}
 
 		RecordingCollection->StopSpeak();
-	}
 
-	IFLYTEK_LOG_PRINT(TEXT("Send Audio done."));
+		// 上传完成后，客户端需发送一个特殊的binary message到服务端作为结束标识
+		std::string end = "{\"end\": true}";
+		std::vector<uint8> binaryData (end.begin(), end.end());
+		Socket->Send(binaryData.data(), binaryData.size());
+
+		IFLYTEK_LOG_PRINT(TEXT("Send Audio done."));
+	}
 
 	RemoveASRHandle(InHandle);
 }
@@ -197,11 +202,7 @@ void UIFlytekASRSocketSubsystem::StopSendAudioData(int32 InHandle)
 	{
 		*InValue = true;
 	}
-
-	// 上传完成后，客户端需发送一个特殊的binary message到服务端作为结束标识
-	std::string end = "{\"end\": true}";
-	std::vector<uint8> binaryData (end.begin(), end.end());
-	Socket->Send(binaryData.data(), binaryData.size());
+	
 	ASRSocketTextDelegate.Clear();
 }
 
@@ -236,6 +237,12 @@ void UIFlytekASRSocketSubsystem::OnMessage(const FString& Message)
 	// 解析Json数据
 	FASRSocketResponded Responded;
 	IFlytekVoiceJson::ASRSocketRespondedToString(Message, Responded);
+
+	// 错误处理
+	if (Responded.action.Equals(TEXT("error")))
+	{
+		CloseSocket();
+	}
 
 	// 返回结果处理
 	if (Responded.type == 0)

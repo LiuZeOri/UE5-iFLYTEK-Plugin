@@ -27,6 +27,10 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|ASD|WebSocket")
 	static void StartASD_ByWebSocket(const UObject* WorldContextObject, int32& OutHandle, const FIFlytekASDInfo& InConfigInfo, FASDSocketTextDelegate InASDSocketTextDelegate);
 
+	// 结束实时语音转写ASR（WebSocket方法）
+	UFUNCTION(BlueprintCallable, Category="IFlytekVoice|ASD|WebSocket")
+	static void StopASD_ByWebSocket(int32 InHandle);
+
 	/**
 	 * 开始语音合成（流式版）TTS（WebSocket方法）
 	 * @param content 待合成的文本

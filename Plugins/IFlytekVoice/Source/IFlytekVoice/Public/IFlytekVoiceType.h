@@ -163,6 +163,67 @@ enum class ENumberPronunciationType : uint8
 	stringFirst,
 };
 
+UENUM(BlueprintType)
+enum class EASDLanguageType : uint8
+{
+	// 中文（支持简单的英文识别）
+	zh_cn,
+	// 英文
+	en_us,
+};
+
+UENUM(BlueprintType)
+enum class EASDDomainType : uint8
+{
+	// 日常用语
+	iat,
+	// 医疗
+	medical,
+	// 政务坐席助手
+	govSeatAssistant,
+	// 金融坐席助手
+	seatAssistant,
+	// 政务语音分析
+	govAnsys,
+	// 政务语音导航
+	govNav,
+	// 金融语音导航
+	finNav,
+	// 金融语音分析
+	finAnsys,
+};
+
+UENUM(BlueprintType)
+enum class EPersonalizationParameter : uint8
+{
+	// 游戏
+	game,
+	// 健康
+	health,
+	// 购物
+	shopping,
+	// 旅行
+	trip,
+};
+
+UENUM(BlueprintType)
+enum class ETypeFace : uint8
+{
+	// 简体中文（默认值）
+	zh_cn,
+	// 繁体香港
+	zh_hk,
+};
+
+UENUM(BlueprintType)
+enum class EAudioFormat : uint8
+{
+	// 8K采样率
+	rate8k,
+	// 16K采样率
+	rate16k,
+};
+
 /**
  * 用户配置结构体
  * 此结构体定义令牌、AppID等
@@ -274,7 +335,7 @@ struct IFLYTEKVOICE_API FIFlytekASDInfo
 
 	FIFlytekASDInfo();
 
-	// 请求地址
+	// 请求地址，小语种：ws[s]: //iat-niche-api.xfyun.cn/v2/iat
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
 	FString serverURL;
 
@@ -285,6 +346,70 @@ struct IFLYTEKVOICE_API FIFlytekASDInfo
 	// 请求主机
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
 	FString host;
+
+	// 音频采样率
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	EAudioFormat format;
+
+	// 语种
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	EASDLanguageType language;
+
+	// 是否使用小语种（使用小语种时请求地址和请求主机需要更改为小语种的）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	bool bUseMinorLanguage;
+
+	// 小语种（填写小语种类型）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo", meta=(EditCondition = "bUseMinorLanguage"))
+	FString minorLanguage;
+
+	// 应用领域
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	EASDDomainType domain;
+
+	// 方言（填写方言类型）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	FString accent;
+
+	// 是否启用静默检测，即静默多长时间后引擎认为音频结束。（不启用默认2000ms）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	bool bUseVAD;
+	
+	// 用于设置端点检测的静默时间，单位是毫秒。
+	// 默认2000ms（小语种除外，小语种不设置该参数默认为未开启VAD）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo", meta=(EditCondition = "bUseVAD"))
+	int32 vad_eos;
+
+	// 是否启用动态修正（仅中文普通话支持）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	bool bUseDwa;
+
+	// 是否启用领域个性化参数
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	bool bUsePersonalizationParameter;
+
+	// 领域个性化参数
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo", meta=(EditCondition = "bUsePersonalizationParameter"))
+	EPersonalizationParameter pd;
+
+	// 是否开启标点符号添加（仅中文支持）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	bool bPunctuation;
+
+	// 字体（仅中文支持）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	ETypeFace typeFace;
+
+	// 将返回结果的数字格式规则为阿拉伯数字格式，默认开启（中文普通话和日语支持）
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|ASDInfo")
+	bool bNunum;
+	
+public:
+	FString GetLanguageTypeString() const;
+	FString GetDomainTypeString() const;
+	FString GetPersonalizationParameterString() const;
+	FString GetTypeFaceString() const;
+	FString GetAudioFormatString() const;
 };
 
 /**

@@ -21,8 +21,8 @@ public:
 	void CreateSocket(const FIFlytekASDInfo& InConfigInfo, FASDSocketTextDelegate InASDSocketTextDelegate);
 	void CloseSocket();
 	
-	void SendAudioData(int32& OutHandle);
-	void SendAudioData_Thread(int32 InHandle);
+	void SendAudioData(int32& OutHandle, const FIFlytekASDInfo& InConfigInfo);
+	void SendAudioData_Thread(int32 InHandle, const FIFlytekASDInfo InConfigInfo);
 	void StopSendAudioData(int32 InHandle);
 
 protected:
