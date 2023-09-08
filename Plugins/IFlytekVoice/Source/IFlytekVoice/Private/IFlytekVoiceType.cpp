@@ -365,3 +365,50 @@ TArray<uint8> FTTSSocketResponded::GetAudioDecodeData() const
 	
 	return audioDecodeData;
 }
+
+ASDText::ASDText()
+{
+	deleted = false;
+}
+
+FASDSocketRespondedResult::FASDSocketRespondedResult()
+{
+	ls = false;
+}
+
+ASDDecoder::ASDDecoder()
+{
+	texts.AddDefaulted();
+}
+
+void ASDDecoder::TextDecode(ASDText text)
+{
+	if (text.pgs.Equals(TEXT("rpl")))
+	{
+		for (int32 i = text.rg[0]; i <= text.rg[1]; i++)
+		{
+			texts[i].deleted = true;
+		}
+	}
+	texts.Add(text);
+}
+
+void ASDDecoder::TextDiscard()
+{
+	texts.Empty();
+	texts.Shrink();
+	texts.AddDefaulted();
+}
+
+FString ASDDecoder::OutTextString()
+{
+	FString outText;
+	for (ASDText t : texts)
+	{
+		if (!t.deleted)
+		{
+			outText.Append(t.text);
+		}
+	}
+	return outText;
+}

@@ -587,5 +587,100 @@ public:
 	TArray<uint8> GetAudioDecodeData() const;
 };
 
+struct ASDText
+{
+	ASDText();
+	
+	FString text;
+	FString pgs;
+	int32 sn;
+	TArray<int32> rg;
+	bool deleted;
+};
+
+struct ASDDecoder
+{
+public:
+	ASDDecoder();
+	void TextDecode(ASDText text);
+	void TextDiscard();
+	FString OutTextString();
+	
+private:
+	TArray<ASDText> texts;
+};
+
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FASDSocketRespondedWs
+{
+	GENERATED_USTRUCT_BODY()
+
+	// 字词
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data|Result|Ws")
+	TArray<FString> cw;
+};
+
+
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FASDSocketRespondedResult
+{
+	GENERATED_USTRUCT_BODY()
+
+	FASDSocketRespondedResult();
+
+	// 返回结果的序号
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data|Result")
+	int32 sn;
+	
+	// 是否是最后一片结果
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data|Result")
+	bool ls;
+
+	// 开启wpgs会有此字段
+	// 取值为 "apd"时表示该片结果是追加到前面的最终结果；取值为"rpl" 时表示替换前面的部分结果，替换范围为rg字段
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data|Result")
+	FString pgs;
+
+	// 替换范围，开启wpgs会有此字段
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data|Result")
+	TArray<int32> rg;
+
+	// 听写结果
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data|Result")
+	TArray<FASDSocketRespondedWs> ws;
+};
+
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FASDSocketRespondedData
+{
+	GENERATED_USTRUCT_BODY()
+
+	// 识别结果是否结束标识：
+	// 0：识别的第一块结果
+	// 1：识别中间结果
+	// 2：识别最后一块结果
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data")
+	int32 status;
+
+	// 听写识别结果
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded|Data")
+	FASDSocketRespondedResult result;
+};
+
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FASDSocketResponded
+{
+	GENERATED_USTRUCT_BODY()
+
+	// 返回码，0表示成功，其它表示异常
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded")
+	int32 code;
+
+	// 听写结果信息
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded")
+	FASDSocketRespondedData data;
+};
+
+
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);
-DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASDSocketTextDelegate, const FASRSocketResponded&, ASDSocketResponded, const FString&, originalText, const FString&, translateText);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FASDSocketTextDelegate, bool, bFinished, const FString&, Text);

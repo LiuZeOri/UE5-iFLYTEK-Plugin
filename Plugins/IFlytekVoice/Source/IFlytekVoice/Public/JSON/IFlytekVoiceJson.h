@@ -17,6 +17,9 @@ namespace IFlytekVoiceJson
 	// 序列化实时语音听写ASD上传数据 最后一帧
 	IFLYTEKVOICE_API void ASDSocketLastFrameRequestToJson(const FIFlytekASDInfo& InParam, FString& OutJsonString);
 
+	// 反序列化实时语音转写ASD返回的Json数据
+	IFLYTEKVOICE_API void ASDSocketRespondedToString(const FString& JsonString, FASDSocketResponded& OutResponded);
+
 	// 序列化语音合成TTS上传数据
 	IFLYTEKVOICE_API void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, const FString& content, FString& OutJsonString);
 	

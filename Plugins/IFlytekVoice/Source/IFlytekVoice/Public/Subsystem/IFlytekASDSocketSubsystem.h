@@ -33,6 +33,9 @@ protected:
 	void OnMessageSent(const FString& MessageString);
 
 protected:
+	ASDText GetASDText(const FASDSocketResponded& InResponded);
+
+protected:
 	TSharedPtr<IWebSocket> Socket;
 	FASDSocketTextDelegate ASDSocketTextDelegate;
 
@@ -44,6 +47,8 @@ private:
 	int32 CreateASDUniqueHandle();
 	
 private:
+	ASDDecoder decoder;
+	
 	// 线程池
 	TMap<int32, bool> ASDPool;
 	// 锁

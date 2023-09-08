@@ -189,6 +189,7 @@ void UIFlytekASDSocketSubsystem::StopSendAudioData(int32 InHandle)
 		*InValue = true;
 	}
 
+	decoder.TextDiscard();
 	ASDSocketTextDelegate.Clear();
 }
 
@@ -201,6 +202,7 @@ void UIFlytekASDSocketSubsystem::OnConnectionError(const FString& Error)
 {
 	IFLYTEK_ERROR_PRINT(TEXT("%s Error:%s"), *FString(__FUNCTION__), *Error);
 
+	decoder.TextDiscard();
 	ASDSocketTextDelegate.Clear();
 }
 
@@ -215,12 +217,54 @@ void UIFlytekASDSocketSubsystem::OnMessage(const FString& Message)
 	IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
 
 	// 解析Json数据
+	FASDSocketResponded Responded;
+	IFlytekVoiceJson::ASDSocketRespondedToString(Message, Responded);
 	
+	if (Responded.code == 0)
+	{
+		ASDText te = GetASDText(Responded);
+		
+		decoder.TextDecode(te);
+
+		ASDSocketTextDelegate.ExecuteIfBound(false, decoder.OutTextString());
+		
+		if (Responded.data.status == 2)
+		{
+			// todo  resp.data.status == 2 说明数据全部返回完毕，可以关闭连接，释放资源
+			IFLYTEK_LOG_PRINT(TEXT("ASD end"));
+
+			ASDSocketTextDelegate.ExecuteIfBound(true, decoder.OutTextString());
+
+			decoder.TextDiscard();
+			
+			CloseSocket();
+		}
+	}
+	else
+	{
+		IFLYTEK_ERROR_PRINT(TEXT("Responded error"));
+	}
 }
 
 void UIFlytekASDSocketSubsystem::OnMessageSent(const FString& MessageString)
 {
 	//IFLYTEK_WARNING_PRINT(TEXT("%s MessageString:%s"), *FString(__FUNCTION__), *MessageString);
+}
+
+ASDText UIFlytekASDSocketSubsystem::GetASDText(const FASDSocketResponded& InResponded)
+{
+	ASDText text;
+	FString outText;
+	for (FASDSocketRespondedWs WsTmp : InResponded.data.result.ws)
+	{
+		outText.Append(WsTmp.cw[0]);
+	}
+	text.sn = InResponded.data.result.sn;
+	text.text = outText;
+	text.rg = InResponded.data.result.rg;
+	text.pgs = InResponded.data.result.pgs;
+	
+	return text;
 }
 
 int32 UIFlytekASDSocketSubsystem::GetASDHandle()

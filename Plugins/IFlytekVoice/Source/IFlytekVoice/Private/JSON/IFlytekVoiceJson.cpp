@@ -168,6 +168,63 @@ namespace IFlytekVoiceJson
 		JsonWriter->Close();
 	}
 
+	void ASDSocketRespondedToString(const FString& JsonString, FASDSocketResponded& OutResponded)
+	{
+		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+		TSharedPtr<FJsonValue> ReadRoot;
+
+		if (FJsonSerializer::Deserialize(JsonReader, ReadRoot))
+		{
+			if (TSharedPtr<FJsonObject> InJsonObject = ReadRoot->AsObject())
+			{
+				OutResponded.code = InJsonObject->GetIntegerField(TEXT("code"));
+
+				if (TSharedPtr<FJsonObject> InDataJsonObject = InJsonObject->GetObjectField(TEXT("data")))
+				{
+					OutResponded.data.status = InDataJsonObject->GetIntegerField(TEXT("status"));
+					if (TSharedPtr<FJsonObject> InResultJsonObject = InDataJsonObject->GetObjectField(TEXT("result")))
+					{
+						OutResponded.data.result.sn = InResultJsonObject->GetIntegerField(TEXT("sn"));
+						OutResponded.data.result.ls = InResultJsonObject->GetBoolField(TEXT("ls"));
+						OutResponded.data.result.pgs = InResultJsonObject->GetStringField(TEXT("pgs"));
+						
+						const TArray<TSharedPtr<FJsonValue>>* OutRgArray = nullptr;
+						if (InResultJsonObject->TryGetArrayField(TEXT("rg"), OutRgArray))
+						{
+							for (auto& RgTmp : *OutRgArray)
+							{
+								OutResponded.data.result.rg.Add(RgTmp->AsNumber());
+							}
+						}
+						
+						const TArray<TSharedPtr<FJsonValue>>* OutWsArray = nullptr;
+						if (InResultJsonObject->TryGetArrayField(TEXT("ws"), OutWsArray))
+						{
+							for (auto& WsTmp : *OutWsArray)
+							{
+								if (TSharedPtr<FJsonObject> InWsJsonObject = WsTmp->AsObject())
+								{
+									const TArray<TSharedPtr<FJsonValue>>* OutCwArray = nullptr;
+									if (InWsJsonObject->TryGetArrayField(TEXT("cw"), OutCwArray))
+									{
+										for (auto& CwTmp : *OutCwArray)
+										{
+											if (TSharedPtr<FJsonObject> InCwJsonObject = CwTmp->AsObject())
+											{
+												FASDSocketRespondedWs& InRespondedCw = OutResponded.data.result.ws.AddDefaulted_GetRef();
+												InRespondedCw.cw.Add(InCwJsonObject->GetStringField(TEXT("w")));
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
 	void TTSSocketRequestToJson(const FIFlytekTTSInfo& InParam, const FString& content, FString& OutJsonString)
 	{
 		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
