@@ -42,4 +42,9 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TTS|WebSocket")
 	static void StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));
 
+	// 开始文本合规检测TM
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TM")
+	static void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo);
+
+
 };

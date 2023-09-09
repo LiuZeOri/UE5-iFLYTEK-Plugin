@@ -6,6 +6,7 @@
 class UIFlytekASRSocketSubsystem;
 class UIFlytekASDSocketSubsystem;
 class UIFlytekTTSSocketSubsystem;
+class UIFlytekTMHttpSubsystem;
 
 /**
  * 功能实现类，为单例类
@@ -31,6 +32,9 @@ public:
 	// WebSocket方法实现语音合成
 	void StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));
 
+	// 文本检测TM
+	void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo);
+
 protected:
 	void InitLog();
 
@@ -40,4 +44,5 @@ private:
 	UIFlytekASRSocketSubsystem* IFlytekASRSocketSubsystem = nullptr;
 	UIFlytekASDSocketSubsystem* IFlytekASDSocketSubsystem = nullptr;
 	UIFlytekTTSSocketSubsystem* IFlytekTTSSocketSubsystem = nullptr;
+	UIFlytekTMHttpSubsystem* IFlytekTMHttpSubsystem = nullptr;
 };

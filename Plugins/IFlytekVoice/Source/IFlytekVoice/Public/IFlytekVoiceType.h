@@ -247,6 +247,9 @@ struct IFLYTEKVOICE_API FIFlytekUserInfo
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
 	FString apiKeyTTS;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
+	FString apiKeyTM;
 };
 
 /**
@@ -679,6 +682,27 @@ struct IFLYTEKVOICE_API FASDSocketResponded
 	// 听写结果信息
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ASD|Responded")
 	FASDSocketRespondedData data;
+};
+
+/**
+ * 文本合规TM（TextModeration）参数结构体
+ * 此结构体定义语音合成的参数
+ * 官方参考文档：https://www.xfyun.cn/doc/nlp/TextModeration/API.html#%E6%8E%A5%E5%8F%A3demo
+ */
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FIFlytekTMInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	FIFlytekTMInfo();
+
+	// 请求地址
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TMInfo")
+	FString serverURL;
+
+	// 是否全匹配，默认否，匹配到敏感词则不再匹配，不会返回所有敏感分类
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|TMInfo")
+	bool is_match_all;
 };
 
 

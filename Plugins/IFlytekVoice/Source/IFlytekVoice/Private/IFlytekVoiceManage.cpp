@@ -8,6 +8,7 @@
 #include "Subsystem/IFlytekASRSocketSubsystem.h"
 #include "Subsystem/IFlytekASDSocketSubsystem.h"
 #include "Subsystem/IFlytekTTSSocketSubsystem.h"
+#include "Subsystem/IFlytekTMHttpSubsystem.h"
 
 FIFlytekVoiceManage* FIFlytekVoiceManage::Manage = nullptr;
 
@@ -102,6 +103,19 @@ void FIFlytekVoiceManage::StartTTS_ByWebSocket(const UObject* WorldContextObject
 	IFlytekTTSSocketSubsystem->CreateSocket(InConfigInfo, bAutoPlay, bSaveToFile, filePath);
 	
 	IFlytekTTSSocketSubsystem->SendData(content, InConfigInfo);
+}
+
+void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo)
+{
+	if (!WorldContextObject)
+	{
+		return;
+	}
+	
+	// 创建子系统，如果已经存在则不会创建新的副本
+	IFlytekTMHttpSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTMHttpSubsystem>();
+
+	IFlytekTMHttpSubsystem->SendRequest(content, InConfigInfo);
 }
 
 void FIFlytekVoiceManage::InitLog()

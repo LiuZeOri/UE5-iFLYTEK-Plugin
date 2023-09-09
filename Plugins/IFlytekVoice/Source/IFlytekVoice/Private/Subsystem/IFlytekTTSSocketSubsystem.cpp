@@ -63,21 +63,13 @@ void UIFlytekTTSSocketSubsystem::CreateSocket(const FIFlytekTTSInfo& InConfigInf
 	// 建立Socket连接
 	Socket = FWebSocketsModule::Get().CreateWebSocket(URL, InConfigInfo.serverProtocol);
 
-	Socket->OnConnected().AddUObject(this, &UIFlytekTTSSocketSubsystem::OnConnected);
-	Socket->OnConnectionError().AddUObject(this, &UIFlytekTTSSocketSubsystem::OnConnectionError);
+	Socket->OnConnected().AddUObject(this, &Super::OnConnected);
+	Socket->OnConnectionError().AddUObject(this, &Super::OnConnectionError);
 	Socket->OnClosed().AddUObject(this, &UIFlytekTTSSocketSubsystem::OnClosed);
 	Socket->OnMessage().AddUObject(this, &UIFlytekTTSSocketSubsystem::OnMessage);
-	Socket->OnMessageSent().AddUObject(this, &UIFlytekTTSSocketSubsystem::OnMessageSent);
+	Socket->OnMessageSent().AddUObject(this, &Super::OnMessageSent);
 
 	Socket->Connect();
-}
-
-void UIFlytekTTSSocketSubsystem::CloseSocket()
-{
-	if (Socket.IsValid() && Socket->IsConnected())
-	{
-		Socket->Close();
-	}
 }
 
 void UIFlytekTTSSocketSubsystem::SendData(const FString& content, const FIFlytekTTSInfo& InConfigInfo)
@@ -88,20 +80,9 @@ void UIFlytekTTSSocketSubsystem::SendData(const FString& content, const FIFlytek
 	Socket->Send(sendJsonString);
 }
 
-void UIFlytekTTSSocketSubsystem::OnConnected()
-{
-	IFLYTEK_WARNING_PRINT(TEXT("%s"), *FString(__FUNCTION__));
-}
-
-void UIFlytekTTSSocketSubsystem::OnConnectionError(const FString& Error)
-{
-	IFLYTEK_ERROR_PRINT(TEXT("%s Error:%s"), *FString(__FUNCTION__), *Error);
-}
-
 void UIFlytekTTSSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
 {
-	IFLYTEK_WARNING_PRINT(TEXT("%s StatusCode:%d Reason:%s bWasClean:%d"),
-		*FString(__FUNCTION__), StatusCode, *Reason, bWasClean);
+	Super::OnClosed(StatusCode, Reason, bWasClean);
 
 	// 清空，释放内存
 	PCMData.Empty();
@@ -112,7 +93,7 @@ void UIFlytekTTSSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reaso
 
 void UIFlytekTTSSocketSubsystem::OnMessage(const FString& Message)
 {
-	//IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
+	Super::OnMessage(Message);
 
 	// 解析Json数据
 	FTTSSocketResponded Responded;
@@ -146,11 +127,6 @@ void UIFlytekTTSSocketSubsystem::OnMessage(const FString& Message)
 		// 关闭子系统
 		CloseSocket();
 	}
-}
-
-void UIFlytekTTSSocketSubsystem::OnMessageSent(const FString& MessageString)
-{
-	IFLYTEK_WARNING_PRINT(TEXT("%s MessageString:%s"), *FString(__FUNCTION__), *MessageString);
 }
 
 FString UIFlytekTTSSocketSubsystem::GetAfterEncodeText(const FString& InText)

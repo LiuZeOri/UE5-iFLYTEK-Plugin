@@ -1,9 +1,7 @@
 ﻿#pragma once
 
-#include "CoreMinimal.h"
+#include "Core/IFlytekVoiceSubsystem.h"
 #include "IFlytekVoiceType.h"
-#include "IWebSocket.h"
-#include "Engine/Public/Subsystems/GameInstanceSubsystem.h"
 #include "IFlytekASDSocketSubsystem.generated.h"
 
 /**
@@ -13,31 +11,22 @@
  * 作者开发文档：https://www.yuque.com/u28988421/ad9c7i/sa1fatpyzrg79994#VbRPQ
  */
 UCLASS()
-class IFLYTEKVOICE_API UIFlytekASDSocketSubsystem : public UGameInstanceSubsystem
+class IFLYTEKVOICE_API UIFlytekASDSocketSubsystem : public UIFlytekVoiceSubsystem
 {
 	GENERATED_BODY()
 
 public:
 	void CreateSocket(const FIFlytekASDInfo& InConfigInfo, FASDSocketTextDelegate InASDSocketTextDelegate);
-	void CloseSocket();
 	
 	void SendAudioData(int32& OutHandle, const FIFlytekASDInfo& InConfigInfo);
 	void SendAudioData_Thread(int32 InHandle, const FIFlytekASDInfo InConfigInfo);
 	void StopSendAudioData(int32 InHandle);
 
 protected:
-	void OnConnected();
-	void OnConnectionError(const FString& Error);
-	void OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
-	void OnMessage(const FString& Message);
-	void OnMessageSent(const FString& MessageString);
+	virtual void OnMessage(const FString& Message) override;
 
 protected:
 	ASDText GetASDText(const FASDSocketResponded& InResponded);
-
-protected:
-	TSharedPtr<IWebSocket> Socket;
-	FASDSocketTextDelegate ASDSocketTextDelegate;
 
 private:
 	int32 GetASDHandle();
@@ -45,6 +34,9 @@ private:
 	bool FindASDHandle(int32 InHandle);
 	bool IsASDHandleExist(int32 InHandle) const;
 	int32 CreateASDUniqueHandle();
+
+protected:
+	FASDSocketTextDelegate ASDSocketTextDelegate;
 	
 private:
 	ASDDecoder decoder;

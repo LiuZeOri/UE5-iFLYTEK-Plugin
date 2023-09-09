@@ -1,9 +1,7 @@
 ﻿#pragma once
 
-#include "CoreMinimal.h"
+#include "Core/IFlytekVoiceSubsystem.h"
 #include "IFlytekVoiceType.h"
-#include "IWebSocket.h"
-#include "Engine/Public/Subsystems/GameInstanceSubsystem.h"
 #include "IFlytekASRSocketSubsystem.generated.h"
 
 /**
@@ -14,35 +12,29 @@
  * 作者开发文档：https://www.yuque.com/u28988421/ad9c7i/sa1fatpyzrg79994#VbRPQ
  */
 UCLASS()
-class IFLYTEKVOICE_API UIFlytekASRSocketSubsystem : public UGameInstanceSubsystem
+class IFLYTEKVOICE_API UIFlytekASRSocketSubsystem : public UIFlytekVoiceSubsystem
 {
 	GENERATED_BODY()
 
 public:
 	void CreateSocket(const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate);
-	void CloseSocket();
 	
 	void SendAudioData(int32& OutHandle);
 	void SendAudioData_Thread(int32 InHandle);
 	void StopSendAudioData(int32 InHandle);
 
 protected:
-	void OnConnected();
-	void OnConnectionError(const FString& Error);
-	void OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
-	void OnMessage(const FString& Message);
-	void OnMessageSent(const FString& MessageString);
-
-protected:
-	TSharedPtr<IWebSocket> Socket;
-	FASRSocketTextDelegate ASRSocketTextDelegate;
-
+	virtual void OnMessage(const FString& Message) override;
+	
 private:
 	int32 GetASRHandle();
 	bool RemoveASRHandle(int32 InHandle);
 	bool FindASRHandle(int32 InHandle);
 	bool IsASRHandleExist(int32 InHandle) const;
 	int32 CreateASRUniqueHandle();
+
+protected:
+	FASRSocketTextDelegate ASRSocketTextDelegate;
 	
 private:
 	// 线程池
@@ -55,5 +47,4 @@ private:
 	FString srcFinalString;
 	FString dstBuffString;
 	FString dstFinalString;
-
 };

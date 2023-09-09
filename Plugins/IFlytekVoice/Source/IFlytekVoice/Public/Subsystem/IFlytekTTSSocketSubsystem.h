@@ -1,9 +1,7 @@
 ﻿#pragma once
 
-#include "CoreMinimal.h"
+#include "Core/IFlytekVoiceSubsystem.h"
 #include "IFlytekVoiceType.h"
-#include "IWebSocket.h"
-#include "Engine/Public/Subsystems/GameInstanceSubsystem.h"
 #include "IFlytekTTSSocketSubsystem.generated.h"
 
 /**
@@ -12,28 +10,20 @@
  * 作者开发文档：https://www.yuque.com/u28988421/ad9c7i/sa1fatpyzrg79994#VbRPQ
  */
 UCLASS()
-class IFLYTEKVOICE_API UIFlytekTTSSocketSubsystem : public UGameInstanceSubsystem
+class IFLYTEKVOICE_API UIFlytekTTSSocketSubsystem : public UIFlytekVoiceSubsystem
 {
 	GENERATED_BODY()
 
 public:
 	void CreateSocket(const FIFlytekTTSInfo& InConfigInfo, bool bInAutoPlay = true, bool bInSaveToFile = false, const FString& InFilePath = TEXT(""));
-	void CloseSocket();
-
 	void SendData(const FString& content, const FIFlytekTTSInfo& InConfigInfo);
 
 protected:
-	void OnConnected();
-	void OnConnectionError(const FString& Error);
-	void OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean);
-	void OnMessage(const FString& Message);
-	void OnMessageSent(const FString& MessageString);
+	virtual void OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean) override;
+	virtual void OnMessage(const FString& Message) override;
 
 private:
 	FString GetAfterEncodeText(const FString& InText);
-
-protected:
-	TSharedPtr<IWebSocket> Socket;
 
 private:
 	bool bAutoPlay;

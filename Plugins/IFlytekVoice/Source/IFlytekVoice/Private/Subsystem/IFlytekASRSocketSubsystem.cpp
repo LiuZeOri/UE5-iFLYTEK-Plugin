@@ -8,34 +8,6 @@
 #include "JSON/IFlytekVoiceJson.h"
 #include "Sound/RecordingCollection.h"
 
-struct FASRAbandonable : FNonAbandonableTask
-{
-	FASRAbandonable(const FSimpleDelegate& InThreadDelegate)
-		:ThreadDelegate(InThreadDelegate)
-	{
-		
-	}
-
-	~FASRAbandonable()
-	{
-
-	}
-
-	void DoWork()
-	{
-		ThreadDelegate.ExecuteIfBound();
-	}
-
-	// ID
-	FORCEINLINE TStatId GetStatId() const
-	{
-		RETURN_QUICK_DECLARE_CYCLE_STAT(FASRAbandonable, STATGROUP_ThreadPoolAsyncTasks);
-	}
-
-protected:
-	FSimpleDelegate ThreadDelegate;
-};
-
 void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate)
 {
 	// 加载模块
@@ -111,11 +83,11 @@ void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInf
 	// 建立Socket连接
 	Socket = FWebSocketsModule::Get().CreateWebSocket(URL, InConfigInfo.serverProtocol);
 
-	Socket->OnConnected().AddUObject(this, &UIFlytekASRSocketSubsystem::OnConnected);
-	Socket->OnConnectionError().AddUObject(this, &UIFlytekASRSocketSubsystem::OnConnectionError);
-	Socket->OnClosed().AddUObject(this, &UIFlytekASRSocketSubsystem::OnClosed);
+	Socket->OnConnected().AddUObject(this, &Super::OnConnected);
+	Socket->OnConnectionError().AddUObject(this, &Super::OnConnectionError);
+	Socket->OnClosed().AddUObject(this, &Super::OnClosed);
 	Socket->OnMessage().AddUObject(this, &UIFlytekASRSocketSubsystem::OnMessage);
-	Socket->OnMessageSent().AddUObject(this, &UIFlytekASRSocketSubsystem::OnMessageSent);
+	Socket->OnMessageSent().AddUObject(this, &Super::OnMessageSent);
 
 	Socket->Connect();
 
@@ -123,19 +95,11 @@ void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInf
 	ASRSocketTextDelegate = InASRSocketTextDelegate;
 }
 
-void UIFlytekASRSocketSubsystem::CloseSocket()
-{
-	if (Socket.IsValid() && Socket->IsConnected())
-	{
-		Socket->Close();
-	}
-}
-
 void UIFlytekASRSocketSubsystem::SendAudioData(int32& OutHandle)
 {
 	OutHandle = GetASRHandle();
 
-	(new FAutoDeleteAsyncTask<FASRAbandonable>(
+	(new FAutoDeleteAsyncTask<FIFlytekAbandonableTask>(
 		FSimpleDelegate::CreateUObject(this, &UIFlytekASRSocketSubsystem::SendAudioData_Thread,
 		OutHandle)))->StartBackgroundTask();
 }
@@ -204,25 +168,6 @@ void UIFlytekASRSocketSubsystem::StopSendAudioData(int32 InHandle)
 	}
 	
 	ASRSocketTextDelegate.Clear();
-}
-
-void UIFlytekASRSocketSubsystem::OnConnected()
-{
-	IFLYTEK_WARNING_PRINT(TEXT("%s"), *FString(__FUNCTION__));
-}
-
-void UIFlytekASRSocketSubsystem::OnConnectionError(const FString& Error)
-{
-	IFLYTEK_ERROR_PRINT(TEXT("%s Error:%s"), *FString(__FUNCTION__), *Error);
-
-	ASRSocketTextDelegate.Clear();
-}
-
-void UIFlytekASRSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
-{
-	IFLYTEK_WARNING_PRINT(TEXT("%s StatusCode:%d Reason:%s bWasClean:%d"),
-		*FString(__FUNCTION__), StatusCode, *Reason, bWasClean);
-
 	// 清空，释放内存
 	srcFinalString.Empty();
 	srcFinalString.Shrink();
@@ -232,7 +177,7 @@ void UIFlytekASRSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reaso
 
 void UIFlytekASRSocketSubsystem::OnMessage(const FString& Message)
 {
-	IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
+	Super::OnMessage(Message);
 
 	// 解析Json数据
 	FASRSocketResponded Responded;
@@ -267,11 +212,6 @@ void UIFlytekASRSocketSubsystem::OnMessage(const FString& Message)
 		// 说明异常，直接回调
 		ASRSocketTextDelegate.ExecuteIfBound(Responded, TEXT(""), TEXT(""));
 	}
-}
-
-void UIFlytekASRSocketSubsystem::OnMessageSent(const FString& MessageString)
-{
-	IFLYTEK_WARNING_PRINT(TEXT("%s MessageString:%s"), *FString(__FUNCTION__), *MessageString);
 }
 
 int32 UIFlytekASRSocketSubsystem::GetASRHandle()

@@ -302,4 +302,36 @@ namespace IFlytekVoiceJson
 			}
 		}
 	}
+
+	void TMConfigToJson(const FIFlytekTMInfo& InParam, const FString& content, FString& OutJsonString)
+	{
+		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutJsonString);
+
+		JsonWriter->WriteObjectStart();
+		{
+			// 设置是否全匹配
+			if (InParam.is_match_all)
+			{
+				JsonWriter->WriteValue(TEXT("is_match_all"), 1);
+			}
+
+			// 设置文本内容
+			JsonWriter->WriteValue(TEXT("content"), content);
+
+			// 设置指定检测的敏感分类
+			TArray<FString> categories;
+			categories.Add(TEXT("pornDetection"));				// 色情
+			categories.Add(TEXT("violentTerrorism"));			// 暴恐
+			categories.Add(TEXT("political"));					// 涉政
+			categories.Add(TEXT("lowQualityIrrigation"));		// 低质量灌水
+			categories.Add(TEXT("contraband"));					// 违禁
+			categories.Add(TEXT("advertisement"));				// 广告
+			categories.Add(TEXT("uncivilizedLanguage"));		// 不文明用语
+			
+			JsonWriter->WriteValue(TEXT("categories"), categories);
+		}
+		JsonWriter->WriteObjectEnd();
+		JsonWriter->Close();
+	}
 }

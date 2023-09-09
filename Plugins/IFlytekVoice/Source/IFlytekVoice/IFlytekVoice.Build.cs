@@ -39,6 +39,7 @@ public class IFlytekVoice : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"WebSockets",
+				"HTTP",
 				"Json",
 				// ... add private dependencies that you statically link with here ...	
 			}

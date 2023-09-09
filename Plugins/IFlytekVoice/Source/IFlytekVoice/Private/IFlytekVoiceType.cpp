@@ -376,6 +376,12 @@ FASDSocketRespondedResult::FASDSocketRespondedResult()
 	ls = false;
 }
 
+FIFlytekTMInfo::FIFlytekTMInfo()
+{
+	serverURL = TEXT("https://audit.iflyaisol.com/audit/v2/syncText");
+	is_match_all = false;
+}
+
 ASDDecoder::ASDDecoder()
 {
 	texts.AddDefaulted();
