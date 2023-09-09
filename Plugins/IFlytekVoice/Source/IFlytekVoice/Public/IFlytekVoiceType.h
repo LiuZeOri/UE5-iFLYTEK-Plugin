@@ -705,6 +705,21 @@ struct IFLYTEKVOICE_API FIFlytekTMInfo
 	bool is_match_all;
 };
 
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FTMResponded
+{
+	GENERATED_USTRUCT_BODY()
+
+	// 会话调用成功标记：000000 表示调用成，其他数字表示会话调用异常
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TM|Responded")
+	FString code;
+
+	// 审核建议结果：pass 通过  block 不合规结果
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TM|Responded")
+	FString suggest;
+};
+
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FASDSocketTextDelegate, bool, bFinished, const FString&, Text);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FTMHttpDelegate, bool, bSuccessed, bool, bPass);

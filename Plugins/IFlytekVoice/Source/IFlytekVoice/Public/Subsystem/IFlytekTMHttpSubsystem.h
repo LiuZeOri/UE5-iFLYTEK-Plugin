@@ -17,11 +17,14 @@ class IFLYTEKVOICE_API UIFlytekTMHttpSubsystem : public UIFlytekVoiceSubsystem
 	GENERATED_BODY()
 
 public:
-	void SendRequest (const FString& content, const FIFlytekTMInfo& InConfigInfo);
+	void SendRequest (const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
 	void SendRequest_Thread (const FString content, const FIFlytekTMInfo InConfigInfo);
 
 protected:
 	void OnRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+
+protected:
+	FTMHttpDelegate TMHttpDelegate;
 
 private:
 	TSharedPtr<IFlytekVoiceHttp::FHttp> Http;

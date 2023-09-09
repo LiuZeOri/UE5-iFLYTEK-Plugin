@@ -28,4 +28,7 @@ namespace IFlytekVoiceJson
 
 	// 序列化文本合规TM上传参数
 	IFLYTEKVOICE_API void TMConfigToJson(const FIFlytekTMInfo& InParam, const FString& content, FString& OutJsonString);
+
+	// 反序列化文本合规TM返回的Json数据
+	IFLYTEKVOICE_API void TMRespondedToString(const FString& JsonString, FTMResponded& OutResponded);
 }

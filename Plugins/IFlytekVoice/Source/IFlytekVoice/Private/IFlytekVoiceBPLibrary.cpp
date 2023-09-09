@@ -29,7 +29,7 @@ void UIFlytekVoiceBPLibrary::StartTTS_ByWebSocket(const UObject* WorldContextObj
 	FIFlytekVoiceManage::Get()->StartTTS_ByWebSocket(WorldContextObject, content, InConfigInfo, bAutoPlay, bSaveToFile, filePath);
 }
 
-void UIFlytekVoiceBPLibrary::StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo)
+void UIFlytekVoiceBPLibrary::StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate)
 {
-	FIFlytekVoiceManage::Get()->StartTextModeration(WorldContextObject, content, InConfigInfo);
+	FIFlytekVoiceManage::Get()->StartTextModeration(WorldContextObject, content, InConfigInfo, InTMHttpDelegate);
 }

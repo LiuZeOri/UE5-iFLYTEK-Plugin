@@ -334,4 +334,26 @@ namespace IFlytekVoiceJson
 		JsonWriter->WriteObjectEnd();
 		JsonWriter->Close();
 	}
+
+	void TMRespondedToString(const FString& JsonString, FTMResponded& OutResponded)
+	{
+		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+		TSharedPtr<FJsonValue> ReadRoot;
+
+		if (FJsonSerializer::Deserialize(JsonReader, ReadRoot))
+		{
+			if (TSharedPtr<FJsonObject> InJsonObject = ReadRoot->AsObject())
+			{
+				OutResponded.code = InJsonObject->GetStringField(TEXT("code"));
+
+				if (const TSharedPtr<FJsonObject>& DataObject = InJsonObject->GetObjectField(TEXT("data")))
+				{
+					if (const TSharedPtr<FJsonObject>& ResultObject = DataObject->GetObjectField(TEXT("result")))
+					{
+						OutResponded.suggest = ResultObject->GetStringField(TEXT("suggest"));
+					}
+				}
+			}
+		}
+	}
 }

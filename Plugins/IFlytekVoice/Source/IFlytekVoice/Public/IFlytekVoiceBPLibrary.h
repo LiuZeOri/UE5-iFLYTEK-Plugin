@@ -44,7 +44,7 @@ public:
 
 	// 开始文本合规检测TM
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TM")
-	static void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo);
+	static void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
 
 
 };

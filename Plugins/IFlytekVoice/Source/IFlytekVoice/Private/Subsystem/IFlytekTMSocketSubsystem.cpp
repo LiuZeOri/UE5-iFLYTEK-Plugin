@@ -1,9 +1,13 @@
 #include "IFlytekVoiceLog.h"
 #include "IFlytekVoiceMacro.h"
+#include "JSON/IFlytekVoiceJson.h"
 #include "Subsystem/IFlytekTMHttpSubsystem.h"
 
-void UIFlytekTMHttpSubsystem::SendRequest (const FString& content, const FIFlytekTMInfo& InConfigInfo)
+void UIFlytekTMHttpSubsystem::SendRequest (const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate)
 {
+	// 绑定委托
+	TMHttpDelegate = InTMHttpDelegate;
+	
 	(new FAutoDeleteAsyncTask<FIFlytekAbandonableTask>(
 		FSimpleDelegate::CreateUObject(this, &UIFlytekTMHttpSubsystem::SendRequest_Thread,
 		content, InConfigInfo)))->StartBackgroundTask();
@@ -30,8 +34,29 @@ void UIFlytekTMHttpSubsystem::OnRequestComplete(FHttpRequestPtr HttpRequest, FHt
 {
 	if (bSucceeded)
 	{
-		FString Response = HttpResponse->GetContentAsString();
-		IFLYTEK_LOG_PRINT(TEXT("%s"), *Response);
+		FTMResponded Response;
+		IFlytekVoiceJson::TMRespondedToString(HttpResponse->GetContentAsString(), Response);
+
+		if (Response.code.Equals(TEXT("000000")))
+		{
+			if (Response.suggest.Equals(TEXT("pass")))
+			{
+				TMHttpDelegate.ExecuteIfBound(true, true);
+			}
+			else if (Response.suggest.Equals(TEXT("block")))
+			{
+				TMHttpDelegate.ExecuteIfBound(true, false);
+			}
+		}
+		else
+		{
+			TMHttpDelegate.ExecuteIfBound(false, false);
+		}
 	}
-	
+	else
+	{
+		IFLYTEK_ERROR_PRINT(TEXT("TM Http Request error."))
+	}
+
+	TMHttpDelegate.Clear();
 }

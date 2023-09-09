@@ -74,7 +74,7 @@ namespace IFlytekVoiceHttp
 		// 然后使用base64编码得到signature
 		FSHAHash outHash;
 		FSHA1::HMACBuffer(TCHAR_TO_ANSI(*FIFlytekVoiceConfig::Get()->UserInfo.apiSecret),
-			FIFlytekVoiceConfig::Get()->UserInfo.apiKeyASR.Len(),
+			FIFlytekVoiceConfig::Get()->UserInfo.apiSecret.Len(),
 			TCHAR_TO_ANSI(*baseString),
 			baseString.Len(),
 			outHash.Hash);

@@ -105,7 +105,7 @@ void FIFlytekVoiceManage::StartTTS_ByWebSocket(const UObject* WorldContextObject
 	IFlytekTTSSocketSubsystem->SendData(content, InConfigInfo);
 }
 
-void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo)
+void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate)
 {
 	if (!WorldContextObject)
 	{
@@ -115,7 +115,7 @@ void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject,
 	// 创建子系统，如果已经存在则不会创建新的副本
 	IFlytekTMHttpSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTMHttpSubsystem>();
 
-	IFlytekTMHttpSubsystem->SendRequest(content, InConfigInfo);
+	IFlytekTMHttpSubsystem->SendRequest(content, InConfigInfo, InTMHttpDelegate);
 }
 
 void FIFlytekVoiceManage::InitLog()
