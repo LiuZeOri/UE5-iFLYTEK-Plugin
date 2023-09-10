@@ -47,6 +47,7 @@ void UIFlytekTMHttpSubsystem::OnRequestComplete(FHttpRequestPtr HttpRequest, FHt
 			{
 				TMHttpDelegate.ExecuteIfBound(true, false);
 			}
+			TMHttpDelegate.Clear();
 		}
 		else
 		{
@@ -57,6 +58,4 @@ void UIFlytekTMHttpSubsystem::OnRequestComplete(FHttpRequestPtr HttpRequest, FHt
 	{
 		IFLYTEK_ERROR_PRINT(TEXT("TM Http Request error."))
 	}
-
-	TMHttpDelegate.Clear();
 }

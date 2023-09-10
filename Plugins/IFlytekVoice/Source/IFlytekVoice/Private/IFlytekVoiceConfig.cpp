@@ -71,8 +71,10 @@ void FIFlytekVoiceConfig::Init(const FString& InPath)
 		GetStringValue(IFlytekUserSection, TEXT("appID"), UserInfo.appID);
 		GetStringValue(IFlytekUserSection, TEXT("apiSecret"), UserInfo.apiSecret);
 		GetStringValue(IFlytekUserSection, TEXT("apiKeyASR"), UserInfo.apiKeyASR);
+		GetStringValue(IFlytekUserSection, TEXT("apiKeyASD"), UserInfo.apiKeyASD);
 		GetStringValue(IFlytekUserSection, TEXT("apiKeyTTS"), UserInfo.apiKeyTTS);
 		GetStringValue(IFlytekUserSection, TEXT("apiKeyTM"), UserInfo.apiKeyTM);
+		GetStringValue(IFlytekUserSection, TEXT("apiKeySD"), UserInfo.apiKeySD);
 
 		// [IFlytekASRConfig] 配置
 		const TCHAR* IFlytekASRSection = TEXT("IFlytekASRConfig");

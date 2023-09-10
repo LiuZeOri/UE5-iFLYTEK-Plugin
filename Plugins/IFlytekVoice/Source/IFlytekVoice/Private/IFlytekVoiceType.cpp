@@ -1,9 +1,5 @@
 ﻿#include "IFlytekVoiceType.h"
 
-FIFlytekUserInfo::FIFlytekUserInfo()
-{
-}
-
 FIFlytekASRInfo::FIFlytekASRInfo()
 {
 	serverURL = TEXT("ws://rtasr.xfyun.cn/v1/ws");
@@ -380,6 +376,46 @@ FIFlytekTMInfo::FIFlytekTMInfo()
 {
 	serverURL = TEXT("https://audit.iflyaisol.com/audit/v2/syncText");
 	is_match_all = false;
+}
+
+FIFlytekSDInfo::FIFlytekSDInfo()
+{
+	model = ESparkDeskModel::V2;
+	uid = TEXT("0");
+	temperature = 0.5f;
+	max_tokens = 2048;
+}
+
+FString FIFlytekSDInfo::GetHost() const
+{
+	return TEXT("aichat.xf-yun.com");
+}
+
+FString FIFlytekSDInfo::GetPath() const
+{
+	if (model == ESparkDeskModel::V1)
+		return TEXT("/v1.1/chat");
+	if (model == ESparkDeskModel::V2)
+		return TEXT("/v2.1/chat");
+	return TEXT("");
+}
+
+FString FIFlytekSDInfo::GetDomain() const
+{
+	if (model == ESparkDeskModel::V1)
+		return TEXT("general");
+	if (model == ESparkDeskModel::V2)
+		return TEXT("generalv2");
+	return TEXT("");
+}
+
+FString FIFlytekSDInfo::GetServerURL() const
+{
+	if (model == ESparkDeskModel::V1)
+		return TEXT("ws://spark-api.xf-yun.com/v1.1/chat");
+	if (model == ESparkDeskModel::V2)
+		return TEXT("ws://spark-api.xf-yun.com/v2.1/chat");
+	return TEXT("");
 }
 
 ASDDecoder::ASDDecoder()

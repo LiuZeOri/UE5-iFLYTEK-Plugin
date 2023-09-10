@@ -31,4 +31,7 @@ namespace IFlytekVoiceJson
 
 	// 反序列化文本合规TM返回的Json数据
 	IFLYTEKVOICE_API void TMRespondedToString(const FString& JsonString, FTMResponded& OutResponded);
+
+	// 序列化星火大模型上传数据
+	IFLYTEKVOICE_API void SDSocketRequestToJson(const FIFlytekSDInfo& InParam, const FString& content, FString& OutJsonString);
 }

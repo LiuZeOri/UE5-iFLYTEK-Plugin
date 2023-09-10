@@ -224,6 +224,13 @@ enum class EAudioFormat : uint8
 	rate16k,
 };
 
+UENUM(BlueprintType)
+enum class ESparkDeskModel : uint8
+{
+	V1			UMETA(DisplayName = "V1.5"),
+	V2			UMETA(DisplayName = "V2.0"),
+};
+
 /**
  * 用户配置结构体
  * 此结构体定义令牌、AppID等
@@ -232,8 +239,6 @@ USTRUCT(BlueprintType)
 struct IFLYTEKVOICE_API FIFlytekUserInfo
 {
 	GENERATED_USTRUCT_BODY()
-
-	FIFlytekUserInfo();
 
 	// 讯飞开放平台应用ID
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
@@ -244,12 +249,18 @@ struct IFLYTEKVOICE_API FIFlytekUserInfo
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
 	FString apiKeyASR;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
+	FString apiKeyASD;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
 	FString apiKeyTTS;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
 	FString apiKeyTM;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|UserInfo")
+	FString apiKeySD;
 };
 
 /**
@@ -719,7 +730,45 @@ struct IFLYTEKVOICE_API FTMResponded
 	FString suggest;
 };
 
+/**
+ * 星火认知大模型参数结构体
+ * 此结构体定义星火认知大模型的参数
+ * 官方参考文档：https://www.xfyun.cn/doc/spark/Web.html
+ */
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FIFlytekSDInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+	FIFlytekSDInfo();
+
+	// 星火大模型，目前有V1.5 V2.0
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|SDInfo")
+	ESparkDeskModel model;
+
+	// 每个用户的id，用于区分不同用户，最大长度32
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|SDInfo")
+	FString uid;
+
+	// 核采样阈值。用于决定结果随机性，取值越高随机性越强即相同的问题得到的不同答案的可能性越高
+	// 取值为[0,1]，默认为0.5
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|SDInfo")
+	float temperature;
+
+	// 模型回答的tokens的最大长度
+	// 取值为[1,4096]，默认为2048
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|SDInfo")
+	int32 max_tokens;
+
+public:
+	FString GetServerURL() const;
+	FString GetHost() const;
+	FString GetPath() const;
+	FString GetDomain() const;
+};
+
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FASDSocketTextDelegate, bool, bFinished, const FString&, Text);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FTMHttpDelegate, bool, bSuccessed, bool, bPass);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FSDSocketDelegate, bool, bFinished, const FString&, response);

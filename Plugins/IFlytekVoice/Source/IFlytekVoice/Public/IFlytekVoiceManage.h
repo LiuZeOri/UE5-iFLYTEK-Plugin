@@ -7,6 +7,7 @@ class UIFlytekASRSocketSubsystem;
 class UIFlytekASDSocketSubsystem;
 class UIFlytekTTSSocketSubsystem;
 class UIFlytekTMHttpSubsystem;
+class UIFlytekSDSocketSubsystem;
 
 /**
  * 功能实现类，为单例类
@@ -35,6 +36,9 @@ public:
 	// 文本检测TM
 	void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
 
+	// 星火大模型聊天SparkDesk
+	void ChatSparkDesk(const UObject* WorldContextObject, const FString& content, const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate);
+
 protected:
 	void InitLog();
 
@@ -45,4 +49,5 @@ private:
 	UIFlytekASDSocketSubsystem* IFlytekASDSocketSubsystem = nullptr;
 	UIFlytekTTSSocketSubsystem* IFlytekTTSSocketSubsystem = nullptr;
 	UIFlytekTMHttpSubsystem* IFlytekTMHttpSubsystem = nullptr;
+	UIFlytekSDSocketSubsystem* IFlytekSDSocketSubsystem = nullptr;
 };

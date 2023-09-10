@@ -31,7 +31,7 @@ void UIFlytekASDSocketSubsystem::CreateSocket(const FIFlytekASDInfo& InConfigInf
 
 	// 2.根据以上信息拼接authorization base64编码前（authorizationOrigin）的字符串
 	FString authorizationOrigin = FString::Printf(TEXT("api_key=\"%s\", algorithm=\"hmac-sha256\", headers=\"host date request-line\", signature=\"%s\""),
-		*FIFlytekVoiceConfig::Get()->UserInfo.apiKeyTTS,
+		*FIFlytekVoiceConfig::Get()->UserInfo.apiKeyASD,
 		*signature);
 
 	// 最后再对authorization_origin进行base64编码获得最终的authorization参数

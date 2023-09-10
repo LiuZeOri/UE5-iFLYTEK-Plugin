@@ -46,5 +46,7 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TM")
 	static void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
 
-
+	// 星火大模型聊天SparkDesk
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|SD")
+	static void ChatSparkDesk(const UObject* WorldContextObject, const FString& content, const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate);
 };

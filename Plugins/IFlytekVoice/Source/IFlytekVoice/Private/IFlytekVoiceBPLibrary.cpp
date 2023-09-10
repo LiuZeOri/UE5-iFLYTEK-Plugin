@@ -33,3 +33,9 @@ void UIFlytekVoiceBPLibrary::StartTextModeration(const UObject* WorldContextObje
 {
 	FIFlytekVoiceManage::Get()->StartTextModeration(WorldContextObject, content, InConfigInfo, InTMHttpDelegate);
 }
+
+void UIFlytekVoiceBPLibrary::ChatSparkDesk(const UObject* WorldContextObject, const FString& content,
+	const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate)
+{
+	FIFlytekVoiceManage::Get()->ChatSparkDesk(WorldContextObject, content, InConfigInfo, InSDSocketDelegate);
+}

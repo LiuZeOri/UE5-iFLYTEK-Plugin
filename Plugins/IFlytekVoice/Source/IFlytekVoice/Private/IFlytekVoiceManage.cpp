@@ -9,6 +9,7 @@
 #include "Subsystem/IFlytekASDSocketSubsystem.h"
 #include "Subsystem/IFlytekTTSSocketSubsystem.h"
 #include "Subsystem/IFlytekTMHttpSubsystem.h"
+#include "Subsystem/IFlytekSDSocketSubsystem.h"
 
 FIFlytekVoiceManage* FIFlytekVoiceManage::Manage = nullptr;
 
@@ -116,6 +117,22 @@ void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject,
 	IFlytekTMHttpSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTMHttpSubsystem>();
 
 	IFlytekTMHttpSubsystem->SendRequest(content, InConfigInfo, InTMHttpDelegate);
+}
+
+void FIFlytekVoiceManage::ChatSparkDesk(const UObject* WorldContextObject, const FString& content,
+	const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate)
+{
+	if (!WorldContextObject)
+	{
+		return;
+	}
+	
+	// 创建子系统，如果已经存在则不会创建新的副本
+	IFlytekSDSocketSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekSDSocketSubsystem>();
+
+	IFlytekSDSocketSubsystem->CreateSocket(InConfigInfo, InSDSocketDelegate);
+	
+	IFlytekSDSocketSubsystem->SendData(content, InConfigInfo);
 }
 
 void FIFlytekVoiceManage::InitLog()

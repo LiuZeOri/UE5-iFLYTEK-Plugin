@@ -23,6 +23,7 @@ public:
 	FIFlytekASDInfo ASDInfo;
 	FIFlytekTTSInfo TTSInfo;
 	FIFlytekTMInfo TMInfo;
+	FIFlytekSDInfo SDInfo;
 
 private:
 	static FIFlytekVoiceConfig* Manage;

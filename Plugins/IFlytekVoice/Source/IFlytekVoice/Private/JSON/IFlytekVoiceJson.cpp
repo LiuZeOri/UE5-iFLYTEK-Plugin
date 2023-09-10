@@ -356,4 +356,59 @@ namespace IFlytekVoiceJson
 			}
 		}
 	}
+
+	void SDSocketRequestToJson(const FIFlytekSDInfo& InParam, const FString& content, FString& OutJsonString)
+	{
+		TSharedPtr<TJsonWriter<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>> JsonWriter =
+			TJsonWriterFactory<TCHAR, TCondensedJsonPrintPolicy<TCHAR>>::Create(&OutJsonString);
+
+		JsonWriter->WriteObjectStart();
+		{
+			// header
+			JsonWriter->WriteObjectStart(TEXT("header"));
+			{
+				JsonWriter->WriteValue(TEXT("app_id"), FIFlytekVoiceConfig::Get()->UserInfo.appID);
+				JsonWriter->WriteValue(TEXT("uid"), InParam.uid);
+			}
+			JsonWriter->WriteObjectEnd(); //}
+
+			// parameter
+			JsonWriter->WriteObjectStart(TEXT("parameter"));
+			{
+				// chat
+				JsonWriter->WriteObjectStart(TEXT("chat"));
+				{
+					JsonWriter->WriteValue(TEXT("domain"), InParam.GetDomain());
+					JsonWriter->WriteValue(TEXT("temperature"), InParam.temperature);
+					JsonWriter->WriteValue(TEXT("max_tokens"), InParam.max_tokens);
+				}
+				JsonWriter->WriteObjectEnd(); //}
+			}
+			JsonWriter->WriteObjectEnd(); //}
+
+			// payload
+			JsonWriter->WriteObjectStart(TEXT("payload"));
+			{
+				// message
+				JsonWriter->WriteObjectStart(TEXT("message"));
+				{
+					// text
+					JsonWriter->WriteArrayStart(TEXT("text"));
+					{
+						JsonWriter->WriteObjectStart();
+						{
+							JsonWriter->WriteValue(TEXT("role"), TEXT("user"));
+							JsonWriter->WriteValue(TEXT("content"), content);
+						}
+						JsonWriter->WriteObjectEnd(); //}
+					}
+					JsonWriter->WriteArrayEnd(); //]
+				}
+				JsonWriter->WriteObjectEnd(); //}
+			}
+			JsonWriter->WriteObjectEnd(); //}
+		}
+		JsonWriter->WriteObjectEnd();
+		JsonWriter->Close();
+	}
 }
