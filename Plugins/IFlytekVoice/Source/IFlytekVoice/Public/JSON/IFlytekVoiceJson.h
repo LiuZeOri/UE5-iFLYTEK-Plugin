@@ -34,4 +34,7 @@ namespace IFlytekVoiceJson
 
 	// 序列化星火大模型上传数据
 	IFLYTEKVOICE_API void SDSocketRequestToJson(const FIFlytekSDInfo& InParam, const FString& content, FString& OutJsonString);
+
+	// 反序列化星火大模型返回的Json数据
+	IFLYTEKVOICE_API void SDRespondedToString(const FString& JsonString, FSDResponded& OutResponded);
 }

@@ -81,5 +81,21 @@ void UIFlytekSDSocketSubsystem::OnMessage(const FString& Message)
 {
 	Super::OnMessage(Message);
 
-	IFLYTEK_WARNING_PRINT(TEXT("%s Message:%s"), *FString(__FUNCTION__), *Message);
+	// 解析Json数据
+	FSDResponded Responded;
+	IFlytekVoiceJson::SDRespondedToString(Message, Responded);
+	
+	if (Responded.status != 2)
+	{
+		SDSocketDelegate.ExecuteIfBound(false, Responded.content);
+	}
+	else if (Responded.status == 2)
+	{
+		// status = 2 说明数据全部返回完毕，可以关闭连接，释放资源
+		IFLYTEK_LOG_PRINT(TEXT("SparkDesk end"));
+		
+		SDSocketDelegate.ExecuteIfBound(true, Responded.content);
+		
+		CloseSocket();
+	}
 }

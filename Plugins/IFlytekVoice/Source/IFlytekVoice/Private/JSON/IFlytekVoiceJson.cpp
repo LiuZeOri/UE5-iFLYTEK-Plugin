@@ -411,4 +411,39 @@ namespace IFlytekVoiceJson
 		JsonWriter->WriteObjectEnd();
 		JsonWriter->Close();
 	}
+
+	void SDRespondedToString(const FString& JsonString, FSDResponded& OutResponded)
+	{
+		TSharedRef<TJsonReader<>> JsonReader = TJsonReaderFactory<>::Create(JsonString);
+		TSharedPtr<FJsonValue> ReadRoot;
+
+		if (FJsonSerializer::Deserialize(JsonReader, ReadRoot))
+		{
+			if (TSharedPtr<FJsonObject> InJsonObject = ReadRoot->AsObject())
+			{
+				if (const TSharedPtr<FJsonObject>& HeaderObject = InJsonObject->GetObjectField(TEXT("header")))
+				{
+					OutResponded.status = HeaderObject->GetIntegerField(TEXT("status"));
+				}
+
+				if (const TSharedPtr<FJsonObject>& PayloadObject = InJsonObject->GetObjectField(TEXT("payload")))
+				{
+					if (const TSharedPtr<FJsonObject>& ChoicesObject = PayloadObject->GetObjectField(TEXT("choices")))
+					{
+						const TArray<TSharedPtr<FJsonValue>>* TextArray = nullptr;
+						if (ChoicesObject->TryGetArrayField(TEXT("text"), TextArray))
+						{
+							for (auto& Tmp : *TextArray)
+							{
+								if (TSharedPtr<FJsonObject> InTextJsonObject = Tmp->AsObject())
+								{
+									OutResponded.content = InTextJsonObject->GetStringField(TEXT("content"));
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 }

@@ -767,6 +767,20 @@ public:
 	FString GetDomain() const;
 };
 
+USTRUCT(BlueprintType)
+struct IFLYTEKVOICE_API FSDResponded
+{
+	GENERATED_USTRUCT_BODY()
+
+	// 会话状态，取值为[0,1,2]；0代表首次结果；1代表中间结果；2代表最后一个结果
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SD|Responded")
+	int32 status;
+
+	// AI的回答内容
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SD|Responded")
+	FString content;
+};
+
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FASDSocketTextDelegate, bool, bFinished, const FString&, Text);
