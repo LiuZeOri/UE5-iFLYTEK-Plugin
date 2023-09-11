@@ -784,5 +784,5 @@ struct IFLYTEKVOICE_API FSDResponded
 
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketResponded&, ASRSocketResponded, const FString&, originalText, const FString&, translateText);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FASDSocketTextDelegate, bool, bFinished, const FString&, Text);
-DECLARE_DYNAMIC_DELEGATE_TwoParams(FTMHttpDelegate, bool, bSuccessed, bool, bPass);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FTMHttpDelegate, bool, bPass);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FSDSocketDelegate, bool, bFinished, const FString&, response);

@@ -91,6 +91,7 @@ namespace IFlytekVoiceHttp
 			*FIFlytekVoiceConfig::Get()->UserInfo.appID,
 			*uuid
 			);
+		URL.ReplaceInline(TEXT("+"), TEXT("%2B"));
 
 		// 配置请求Json
 		FString ConfigJsonString;

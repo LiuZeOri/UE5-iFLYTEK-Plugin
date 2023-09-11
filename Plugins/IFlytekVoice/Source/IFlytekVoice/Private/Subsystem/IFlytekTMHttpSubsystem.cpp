@@ -1,7 +1,7 @@
+#include "Subsystem/IFlytekTMHttpSubsystem.h"
 #include "IFlytekVoiceLog.h"
 #include "IFlytekVoiceMacro.h"
 #include "JSON/IFlytekVoiceJson.h"
-#include "Subsystem/IFlytekTMHttpSubsystem.h"
 
 void UIFlytekTMHttpSubsystem::SendRequest (const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate)
 {
@@ -36,23 +36,17 @@ void UIFlytekTMHttpSubsystem::OnRequestComplete(FHttpRequestPtr HttpRequest, FHt
 	{
 		FTMResponded Response;
 		IFlytekVoiceJson::TMRespondedToString(HttpResponse->GetContentAsString(), Response);
-
-		if (Response.code.Equals(TEXT("000000")))
+		IFLYTEK_ERROR_PRINT(TEXT("TM %s"), *HttpResponse->GetContentAsString())
+		
+		if (Response.suggest.Equals(TEXT("pass")))
 		{
-			if (Response.suggest.Equals(TEXT("pass")))
-			{
-				TMHttpDelegate.ExecuteIfBound(true, true);
-			}
-			else if (Response.suggest.Equals(TEXT("block")))
-			{
-				TMHttpDelegate.ExecuteIfBound(true, false);
-			}
-			TMHttpDelegate.Clear();
+			TMHttpDelegate.ExecuteIfBound(true);
 		}
-		else
+		else if (Response.suggest.Equals(TEXT("block")))
 		{
-			TMHttpDelegate.ExecuteIfBound(false, false);
+			TMHttpDelegate.ExecuteIfBound(false);
 		}
+		TMHttpDelegate.Clear();
 	}
 	else
 	{

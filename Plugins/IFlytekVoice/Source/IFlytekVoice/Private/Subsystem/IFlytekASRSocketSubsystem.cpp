@@ -79,6 +79,8 @@ void UIFlytekASRSocketSubsystem::CreateSocket(const FIFlytekASRInfo& InConfigInf
 
 	// 语言识别模式选择
 	URL.Appendf(TEXT("&engLangType=%s"), *InConfigInfo.GetLanguageRecognitionMode());
+
+	URL.ReplaceInline(TEXT("+"), TEXT("%2B"));
 	
 	// 建立Socket连接
 	Socket = FWebSocketsModule::Get().CreateWebSocket(URL, InConfigInfo.serverProtocol);
