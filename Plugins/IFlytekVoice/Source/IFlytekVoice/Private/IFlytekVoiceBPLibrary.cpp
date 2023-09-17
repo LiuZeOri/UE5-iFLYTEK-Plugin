@@ -34,6 +34,13 @@ void UIFlytekVoiceBPLibrary::StartTextModeration(const UObject* WorldContextObje
 	FIFlytekVoiceManage::Get()->StartTextModeration(WorldContextObject, content, InConfigInfo, InTMHttpDelegate);
 }
 
+void UIFlytekVoiceBPLibrary::StartTextModerationForSparkDesk(const UObject* WorldContextObject,
+	UPARAM(ref) TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, UPARAM(ref) bool& bSparkDeskFinished,
+	FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate)
+{
+	FIFlytekVoiceManage::Get()->StartTextModerationForSparkDesk(WorldContextObject, content, InConfigInfo, bSparkDeskFinished, InTMHttpForSparkDeskDelegate);
+}
+
 void UIFlytekVoiceBPLibrary::ChatSparkDesk(const UObject* WorldContextObject, const FString& content,
 	const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate)
 {

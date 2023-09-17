@@ -119,6 +119,19 @@ void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject,
 	IFlytekTMHttpSubsystem->SendRequest(content, InConfigInfo, InTMHttpDelegate);
 }
 
+void FIFlytekVoiceManage::StartTextModerationForSparkDesk(const UObject* WorldContextObject, TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, bool& bSparkDeskFinished, FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate)
+{
+	if (!WorldContextObject)
+	{
+		return;
+	}
+	
+	// 创建子系统，如果已经存在则不会创建新的副本
+	IFlytekTMHttpSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTMHttpSubsystem>();
+
+	IFlytekTMHttpSubsystem->SendRequestForSparkDesk(content, InConfigInfo, bSparkDeskFinished, InTMHttpForSparkDeskDelegate);
+}
+
 void FIFlytekVoiceManage::ChatSparkDesk(const UObject* WorldContextObject, const FString& content,
 	const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate)
 {

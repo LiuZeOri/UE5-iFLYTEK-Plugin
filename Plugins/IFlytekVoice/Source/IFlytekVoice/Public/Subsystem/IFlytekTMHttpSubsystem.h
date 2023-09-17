@@ -18,14 +18,47 @@ class IFLYTEKVOICE_API UIFlytekTMHttpSubsystem : public UIFlytekVoiceSubsystem
 
 public:
 	void SendRequest (const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
+	void SendRequestForSparkDesk (TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, bool& bSparkDeskFinished, FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate);
 	void SendRequest_Thread (const FString content, const FIFlytekTMInfo InConfigInfo);
+	void SendRequestForSparkDesk_Thread(TArray<FString>& content, const FIFlytekTMInfo InConfigInfo, bool& bSparkDeskFinished);
 
 protected:
 	void OnRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+	void OnRequestForSparkDeskComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 
 protected:
 	FTMHttpDelegate TMHttpDelegate;
+	FTMHttpForSparkDeskDelegate TMHttpForSparkDeskDelegate;
+
+public:
+	struct FIFlytekParaAbandonableTask : FNonAbandonableTask
+	{
+		FIFlytekParaAbandonableTask(TFunction<void()>& InThreadFunction)
+			: ThreadFunction(InThreadFunction)
+		{
+		}
+    
+		~FIFlytekParaAbandonableTask()
+		{
+		}
+    
+		void DoWork()
+		{
+			ThreadFunction();
+		}
+    
+		// ID
+		FORCEINLINE TStatId GetStatId() const
+		{
+			RETURN_QUICK_DECLARE_CYCLE_STAT(FASRAbandonable, STATGROUP_ThreadPoolAsyncTasks);
+		}
+    
+	protected:
+		TFunction<void()> ThreadFunction;
+	};
 
 private:
 	TSharedPtr<IFlytekVoiceHttp::FHttp> Http;
+	bool bOccupied = false;
+	int32 index;
 };
