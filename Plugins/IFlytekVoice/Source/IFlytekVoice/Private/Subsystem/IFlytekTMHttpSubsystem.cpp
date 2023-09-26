@@ -62,14 +62,14 @@ void UIFlytekTMHttpSubsystem::SendRequestForSparkDesk_Thread(TArray<FString>& co
 	index = 0;
 	while (true)
 	{
-		if (!HttpForSparkDesk->IsLeaveUnused() || content.IsEmpty())
+		if (!HttpForSparkDesk->IsLeaveUnused() || content.IsEmpty() || bOccupied)
 		{
 			continue;
 		}
 		
 		if (index < content.Num())
 		{
-			if (bOccupied)
+			if (!content.IsValidIndex(index))
 			{
 				continue;
 			}
@@ -82,8 +82,6 @@ void UIFlytekTMHttpSubsystem::SendRequestForSparkDesk_Thread(TArray<FString>& co
 			HttpForSparkDesk->TMRequest(content[index], InConfigInfo);
 				
 			bOccupied = true;
-			
-			index ++;
 		}
 		else if (bSparkDeskFinished)
 		{
@@ -140,6 +138,7 @@ void UIFlytekTMHttpSubsystem::OnRequestForSparkDeskComplete(FHttpRequestPtr Http
 		}
 
 		bOccupied = false;
+		index ++;
 	}
 	else
 	{
