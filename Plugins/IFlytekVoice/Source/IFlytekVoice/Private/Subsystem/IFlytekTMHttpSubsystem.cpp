@@ -101,7 +101,7 @@ void UIFlytekTMHttpSubsystem::OnRequestComplete(FHttpRequestPtr HttpRequest, FHt
 	{
 		FTMResponded Response;
 		IFlytekVoiceJson::TMRespondedToString(HttpResponse->GetContentAsString(), Response);
-		IFLYTEK_ERROR_PRINT(TEXT("TM %s"), *HttpResponse->GetContentAsString())
+		IFLYTEK_LOG_PRINT(TEXT("TM %s"), *HttpResponse->GetContentAsString())
 		
 		if (Response.suggest.Equals(TEXT("pass")))
 		{

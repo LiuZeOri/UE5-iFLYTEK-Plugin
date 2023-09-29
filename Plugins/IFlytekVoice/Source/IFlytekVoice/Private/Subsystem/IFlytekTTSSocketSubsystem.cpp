@@ -15,6 +15,12 @@ void UIFlytekTTSSocketSubsystem::CreateSocket(const FIFlytekTTSInfo& InConfigInf
 {
 	// 加载模块
 	FModuleManager::Get().LoadModuleChecked("WebSockets");
+
+	// 清空，释放内存
+	PCMData.Empty();
+	PCMData.Shrink();
+	WAVData.Empty();
+	WAVData.Shrink();
 	
 	bAutoPlay = bInAutoPlay;
 	bSaveToFile = bInSaveToFile;
@@ -83,12 +89,6 @@ void UIFlytekTTSSocketSubsystem::SendData(const FString& content, const FIFlytek
 void UIFlytekTTSSocketSubsystem::OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean)
 {
 	Super::OnClosed(StatusCode, Reason, bWasClean);
-
-	// 清空，释放内存
-	PCMData.Empty();
-	PCMData.Shrink();
-	WAVData.Empty();
-	WAVData.Shrink();
 }
 
 void UIFlytekTTSSocketSubsystem::OnMessage(const FString& Message)
