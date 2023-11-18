@@ -123,10 +123,23 @@ void UIFlytekTTSSocketSubsystem::OnMessage(const FString& Message)
 		{
 			FFileHelper::SaveArrayToFile(WAVData, *filePath);
 		}
+
+		// 保存完成事件回调
+		if (bUseDelegate)
+		{
+			TTSSaveFileCompletedDelegate.ExecuteIfBound();
+		}
+		bUseDelegate = false;
 		
 		// 关闭子系统
 		CloseSocket();
 	}
+}
+
+void UIFlytekTTSSocketSubsystem::SetDelegate(FTTSSaveFileCompletedDelegate InTTSSaveFileCompletedDelegate)
+{
+	TTSSaveFileCompletedDelegate = InTTSSaveFileCompletedDelegate;
+	bUseDelegate = true;
 }
 
 FString UIFlytekTTSSocketSubsystem::GetAfterEncodeText(const FString& InText)

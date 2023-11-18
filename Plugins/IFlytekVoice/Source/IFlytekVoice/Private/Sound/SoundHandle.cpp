@@ -26,6 +26,16 @@ namespace SoundHandle
 		return false;
 	}
 
+	bool PlaySoundByFile_SYNC(const FString& InFilePath)
+	{
+		FString FullPath = FPaths::ConvertRelativePathToFull(InFilePath);
+
+#if defined(__WINDOWS__) || defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64) || defined(__WIN32__) || defined(__TOS_WIN__)
+		return PlaySound(*FullPath, NULL, SND_FILENAME | SND_SYNC);
+#endif
+		return false;
+	}
+
 	bool PlaySoundByMemory(const uint8* SoundPtr)
 	{
 #if defined(__WINDOWS__) || defined(_WIN32) || defined(WIN32) || defined(_WIN64) || defined(WIN64) || defined(__WIN32__) || defined(__TOS_WIN__)

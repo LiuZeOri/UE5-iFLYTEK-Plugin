@@ -11,7 +11,6 @@ namespace IFlytekVoiceHttp
 		POST,
 		PUT,
 		GET,
-		DELETE,
 	};
 
 	struct FHttpDelegate

@@ -43,6 +43,9 @@ namespace IFlytekVoiceHttp
 			// 绑定委托
 			Request->OnProcessRequestComplete().BindSP(this, &FHttp::OnRequestComplete);
 
+			// 设置超时
+			Request->SetTimeout(0.5f);
+
 			return Request->ProcessRequest();
 		}
 
@@ -119,8 +122,6 @@ namespace IFlytekVoiceHttp
 			return TEXT("PUT");
 		case GET:
 			return TEXT("GET");
-		case DELETE:
-			return TEXT("DELETE");
 		default:
 			return TEXT("POST");
 		}

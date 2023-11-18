@@ -231,6 +231,17 @@ enum class ESparkDeskModel : uint8
 	V2			UMETA(DisplayName = "V2.0"),
 };
 
+UENUM(BlueprintType)
+enum class ETMFunction : uint8
+{
+	// 单条文本检测
+	Single,
+	// 流式返回的结果检测
+	ForSparkDesk,
+	// 一次性返回的结果检测
+	ForOpenAI,
+};
+
 /**
  * 用户配置结构体
  * 此结构体定义令牌、AppID等
@@ -786,4 +797,6 @@ DECLARE_DYNAMIC_DELEGATE_ThreeParams(FASRSocketTextDelegate, const FASRSocketRes
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FASDSocketTextDelegate, bool, bFinished, const FString&, Text);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FTMHttpDelegate, bool, bPass);
 DECLARE_DYNAMIC_DELEGATE_ThreeParams(FTMHttpForSparkDeskDelegate, int32, index, bool, bPass, bool, bFinished);
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FTMHttpForOpenAIDelegate, const FString&, Text, bool, bFinished);
 DECLARE_DYNAMIC_DELEGATE_TwoParams(FSDSocketDelegate, bool, bFinished, const FString&, response);
+DECLARE_DYNAMIC_DELEGATE(FTTSSaveFileCompletedDelegate);

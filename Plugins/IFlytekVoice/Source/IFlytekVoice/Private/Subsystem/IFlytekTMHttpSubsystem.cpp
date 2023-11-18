@@ -30,9 +30,21 @@ void UIFlytekTMHttpSubsystem::SendRequestForSparkDesk (TArray<FString>& content,
 
 }
 
+void UIFlytekTMHttpSubsystem::SendRequestForOpenAI(const FString& content, const FIFlytekTMInfo& InConfigInfo,
+	FTMHttpForOpenAIDelegate InTMHttpForOpenAIDelegate)
+{
+	// 绑定委托
+	TMHttpForOpenAIDelegate = InTMHttpForOpenAIDelegate;
+	
+	(new FAutoDeleteAsyncTask<FIFlytekAbandonableTask>(
+		FSimpleDelegate::CreateUObject(this, &UIFlytekTMHttpSubsystem::SendRequestForOpenAI_Thread,
+		content, InConfigInfo)))->StartBackgroundTask();
+}
+
 void UIFlytekTMHttpSubsystem::SendRequest_Thread(const FString content, const FIFlytekTMInfo InConfigInfo)
 {
 	// 初始化
+	TSharedPtr<IFlytekVoiceHttp::FHttp> Http;
 	IFlytekVoiceHttp::FHttpDelegate HttpDelegate;
 	HttpDelegate.CompleteDelegate.BindLambda(
 		[&](FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
@@ -62,7 +74,7 @@ void UIFlytekTMHttpSubsystem::SendRequestForSparkDesk_Thread(TArray<FString>& co
 	index = 0;
 	while (true)
 	{
-		if (!HttpForSparkDesk->IsLeaveUnused() || content.IsEmpty() || bOccupied)
+		if (!HttpForSparkDesk->IsLeaveUnused() || content.IsEmpty() || bOccupiedForSparkDesk)
 		{
 			continue;
 		}
@@ -81,7 +93,7 @@ void UIFlytekTMHttpSubsystem::SendRequestForSparkDesk_Thread(TArray<FString>& co
 			// 发送请求
 			HttpForSparkDesk->TMRequest(content[index], InConfigInfo);
 				
-			bOccupied = true;
+			bOccupiedForSparkDesk = true;
 		}
 		else if (bSparkDeskFinished)
 		{
@@ -94,8 +106,54 @@ void UIFlytekTMHttpSubsystem::SendRequestForSparkDesk_Thread(TArray<FString>& co
 	}
 }
 
+void UIFlytekTMHttpSubsystem::SendRequestForOpenAI_Thread(FString content, const FIFlytekTMInfo InConfigInfo)
+{
+	// 初始化
+	TSharedPtr<IFlytekVoiceHttp::FHttp> HttpForOpenAI;
+	IFlytekVoiceHttp::FHttpDelegate HttpDelegate;
+	HttpDelegate.CompleteDelegate.BindLambda(
+		[&](FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded)
+		{
+			OnRequestComplete(HttpRequest, HttpResponse, bSucceeded);
+		});
+
+	HttpForOpenAI = IFlytekVoiceHttp::FHttp::CreateHttpObject(HttpDelegate);
+
+	// 对ChatGPT生成内容进行文本检测
+	int32 RemoveLength = 8;
+	while(content.Len() > 0)
+	{
+		if (content.Len() >= 8)
+		{
+			while (HttpForOpenAI->IsLeaveUnused() || bOccupiedForOpenAI)
+            {
+				SubText = content.Left(RemoveLength);
+				content.LeftChopInline(RemoveLength);
+            	HttpForOpenAI->TMRequest(SubText, InConfigInfo);
+            	bOccupiedForOpenAI = true;
+            }
+		}
+		else
+		{
+			while (HttpForOpenAI->IsLeaveUnused() || bOccupiedForOpenAI)
+			{
+				HttpForOpenAI->TMRequest(content, InConfigInfo);
+				bOccupiedForOpenAI = true;
+				content.Empty();
+				content.Shrink();
+			}
+		}
+	}
+
+	// 检测完成
+	IFLYTEK_LOG_PRINT(TEXT("TM for OpenAI Finished."));
+	TMHttpForOpenAIDelegate.ExecuteIfBound(TEXT(""), true);
+	TMHttpForOpenAIDelegate.Clear();
+	HttpForOpenAI.Reset();
+}
+
 void UIFlytekTMHttpSubsystem::OnRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse,
-	bool bSucceeded)
+                                                bool bSucceeded)
 {
 	if (bSucceeded)
 	{
@@ -126,7 +184,7 @@ void UIFlytekTMHttpSubsystem::OnRequestForSparkDeskComplete(FHttpRequestPtr Http
 	{
 		FTMResponded Response;
 		IFlytekVoiceJson::TMRespondedToString(HttpResponse->GetContentAsString(), Response);
-		IFLYTEK_ERROR_PRINT(TEXT("TM %s"), *HttpResponse->GetContentAsString())
+		IFLYTEK_ERROR_PRINT(TEXT("TM for SparkDesk %s"), *HttpResponse->GetContentAsString())
 
 		if (Response.suggest.Equals(TEXT("pass")))
 		{
@@ -137,8 +195,34 @@ void UIFlytekTMHttpSubsystem::OnRequestForSparkDeskComplete(FHttpRequestPtr Http
 			TMHttpForSparkDeskDelegate.ExecuteIfBound(index, false, false);
 		}
 
-		bOccupied = false;
+		bOccupiedForSparkDesk = false;
 		index ++;
+	}
+	else
+	{
+		IFLYTEK_ERROR_PRINT(TEXT("TM Http Request error."))
+	}
+}
+
+void UIFlytekTMHttpSubsystem::OnRequestForOpenAIComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse,
+	bool bSucceeded)
+{
+	if (bSucceeded)
+	{
+		FTMResponded Response;
+		IFlytekVoiceJson::TMRespondedToString(HttpResponse->GetContentAsString(), Response);
+		IFLYTEK_ERROR_PRINT(TEXT("TM for OpenAI %s"), *HttpResponse->GetContentAsString())
+
+		if (Response.suggest.Equals(TEXT("pass")))
+		{
+			TMHttpForOpenAIDelegate.ExecuteIfBound(SubText, false);
+		}
+		else if (Response.suggest.Equals(TEXT("block")))
+		{
+			TMHttpForOpenAIDelegate.ExecuteIfBound(TEXT(""), false);
+		}
+
+		bOccupiedForOpenAI = false;
 	}
 	else
 	{

@@ -18,12 +18,17 @@ public:
 	void CreateSocket(const FIFlytekTTSInfo& InConfigInfo, bool bInAutoPlay = true, bool bInSaveToFile = false, const FString& InFilePath = TEXT(""));
 	void SendData(const FString& content, const FIFlytekTTSInfo& InConfigInfo);
 
+	void SetDelegate(FTTSSaveFileCompletedDelegate InTTSSaveFileCompletedDelegate);
+
 protected:
 	virtual void OnClosed(int32 StatusCode, const FString& Reason, bool bWasClean) override;
 	virtual void OnMessage(const FString& Message) override;
 
 private:
 	FString GetAfterEncodeText(const FString& InText);
+
+protected:
+	FTTSSaveFileCompletedDelegate TTSSaveFileCompletedDelegate;
 
 private:
 	bool bAutoPlay;
@@ -32,4 +37,5 @@ private:
 	int32 sampleRate;
 	TArray<uint8> PCMData;
 	TArray<uint8> WAVData;
+	bool bUseDelegate = false;
 };

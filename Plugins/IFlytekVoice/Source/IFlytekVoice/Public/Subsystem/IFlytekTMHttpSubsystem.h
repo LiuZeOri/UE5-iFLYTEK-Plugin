@@ -17,18 +17,23 @@ class IFLYTEKVOICE_API UIFlytekTMHttpSubsystem : public UIFlytekVoiceSubsystem
 	GENERATED_BODY()
 
 public:
-	void SendRequest (const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
-	void SendRequestForSparkDesk (TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, bool& bSparkDeskFinished, FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate);
-	void SendRequest_Thread (const FString content, const FIFlytekTMInfo InConfigInfo);
+	void SendRequest(const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
+	void SendRequestForSparkDesk(TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, bool& bSparkDeskFinished, FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate);
+	void SendRequestForOpenAI(const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpForOpenAIDelegate InTMHttpForOpenAIDelegate);
+	
+	void SendRequest_Thread(const FString content, const FIFlytekTMInfo InConfigInfo);
 	void SendRequestForSparkDesk_Thread(TArray<FString>& content, const FIFlytekTMInfo InConfigInfo, bool& bSparkDeskFinished);
+	void SendRequestForOpenAI_Thread(FString content, const FIFlytekTMInfo InConfigInfo);
 
 protected:
 	void OnRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
 	void OnRequestForSparkDeskComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded);
+	void OnRequestForOpenAIComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse,bool bSucceeded);
 
 protected:
 	FTMHttpDelegate TMHttpDelegate;
 	FTMHttpForSparkDeskDelegate TMHttpForSparkDeskDelegate;
+	FTMHttpForOpenAIDelegate TMHttpForOpenAIDelegate;
 
 public:
 	struct FIFlytekParaAbandonableTask : FNonAbandonableTask
@@ -58,7 +63,8 @@ public:
 	};
 
 private:
-	TSharedPtr<IFlytekVoiceHttp::FHttp> Http;
-	bool bOccupied = false;
+	FString SubText;
+	bool bOccupiedForSparkDesk = false;
+	bool bOccupiedForOpenAI = false;
 	int32 index;
 };

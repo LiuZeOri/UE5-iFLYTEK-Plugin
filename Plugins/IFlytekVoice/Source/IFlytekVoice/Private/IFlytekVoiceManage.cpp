@@ -8,7 +8,6 @@
 #include "Subsystem/IFlytekASRSocketSubsystem.h"
 #include "Subsystem/IFlytekASDSocketSubsystem.h"
 #include "Subsystem/IFlytekTTSSocketSubsystem.h"
-#include "Subsystem/IFlytekTMHttpSubsystem.h"
 #include "Subsystem/IFlytekSDSocketSubsystem.h"
 
 FIFlytekVoiceManage* FIFlytekVoiceManage::Manage = nullptr;
@@ -39,7 +38,7 @@ void FIFlytekVoiceManage::Destroy()
 	{
 		delete Manage;
 	}
-	Manage = NULL;
+	Manage = nullptr;
 }
 
 void FIFlytekVoiceManage::StartASR_ByWebSocket(const UObject* WorldContextObject, int32& OutHandle, const FIFlytekASRInfo& InConfigInfo, FASRSocketTextDelegate InASRSocketTextDelegate)
@@ -106,7 +105,9 @@ void FIFlytekVoiceManage::StartTTS_ByWebSocket(const UObject* WorldContextObject
 	IFlytekTTSSocketSubsystem->SendData(content, InConfigInfo);
 }
 
-void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate)
+void FIFlytekVoiceManage::StartTTS_ByWebSocket_WithCompletedDelegate(const UObject* WorldContextObject,
+	const FString& content, const FIFlytekTTSInfo& InConfigInfo, const FString& filePath,
+	FTTSSaveFileCompletedDelegate InTTSSaveFileCompletedDelegate, bool bAutoPlay)
 {
 	if (!WorldContextObject)
 	{
@@ -114,26 +115,17 @@ void FIFlytekVoiceManage::StartTextModeration(const UObject* WorldContextObject,
 	}
 	
 	// 创建子系统，如果已经存在则不会创建新的副本
-	IFlytekTMHttpSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTMHttpSubsystem>();
+	IFlytekTTSSocketSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTTSSocketSubsystem>();
 
-	IFlytekTMHttpSubsystem->SendRequest(content, InConfigInfo, InTMHttpDelegate);
-}
+	IFlytekTTSSocketSubsystem->CreateSocket(InConfigInfo, bAutoPlay, true, filePath);
 
-void FIFlytekVoiceManage::StartTextModerationForSparkDesk(const UObject* WorldContextObject, TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, bool& bSparkDeskFinished, FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate)
-{
-	if (!WorldContextObject)
-	{
-		return;
-	}
+	IFlytekTTSSocketSubsystem->SetDelegate(InTTSSaveFileCompletedDelegate);
 	
-	// 创建子系统，如果已经存在则不会创建新的副本
-	IFlytekTMHttpSubsystem = UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UIFlytekTMHttpSubsystem>();
-
-	IFlytekTMHttpSubsystem->SendRequestForSparkDesk(content, InConfigInfo, bSparkDeskFinished, InTMHttpForSparkDeskDelegate);
+	IFlytekTTSSocketSubsystem->SendData(content, InConfigInfo);
 }
 
 void FIFlytekVoiceManage::ChatSparkDesk(const UObject* WorldContextObject, const FString& content,
-	const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate)
+                                        const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate)
 {
 	if (!WorldContextObject)
 	{

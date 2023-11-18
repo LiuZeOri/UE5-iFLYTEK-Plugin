@@ -45,7 +45,7 @@ public:
 		// ID
 		FORCEINLINE TStatId GetStatId() const
 		{
-			RETURN_QUICK_DECLARE_CYCLE_STAT(FASRAbandonable, STATGROUP_ThreadPoolAsyncTasks);
+			RETURN_QUICK_DECLARE_CYCLE_STAT(FIFlytekAbandonableTask, STATGROUP_ThreadPoolAsyncTasks);
 		}
 
 	protected:

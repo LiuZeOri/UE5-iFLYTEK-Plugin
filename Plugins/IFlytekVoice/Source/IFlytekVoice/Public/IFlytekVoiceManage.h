@@ -32,10 +32,7 @@ public:
 
 	// WebSocket方法实现语音合成
 	void StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));
-
-	// 文本检测TM
-	void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
-	void StartTextModerationForSparkDesk(const UObject* WorldContextObject, TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, bool& bSparkDeskFinished, FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate);
+	void StartTTS_ByWebSocket_WithCompletedDelegate(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, const FString& filePath, FTTSSaveFileCompletedDelegate InTTSSaveFileCompletedDelegate, bool bAutoPlay = false);
 
 	// 星火大模型聊天SparkDesk
 	void ChatSparkDesk(const UObject* WorldContextObject, const FString& content, const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate);
@@ -49,6 +46,5 @@ private:
 	UIFlytekASRSocketSubsystem* IFlytekASRSocketSubsystem = nullptr;
 	UIFlytekASDSocketSubsystem* IFlytekASDSocketSubsystem = nullptr;
 	UIFlytekTTSSocketSubsystem* IFlytekTTSSocketSubsystem = nullptr;
-	UIFlytekTMHttpSubsystem* IFlytekTMHttpSubsystem = nullptr;
 	UIFlytekSDSocketSubsystem* IFlytekSDSocketSubsystem = nullptr;
 };

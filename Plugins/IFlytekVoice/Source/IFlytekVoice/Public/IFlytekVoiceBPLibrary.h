@@ -42,15 +42,30 @@ public:
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TTS|WebSocket")
 	static void StartTTS_ByWebSocket(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, bool bAutoPlay = true, bool bSaveToFile = false, const FString& filePath = TEXT(""));
 
-	// 开始文本合规检测TM
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TM")
-	static void StartTextModeration(const UObject* WorldContextObject, const FString& content, const FIFlytekTMInfo& InConfigInfo, FTMHttpDelegate InTMHttpDelegate);
-
-	// 对星火大模型返回的文本进行合规检测
-	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TM")
-	static void StartTextModerationForSparkDesk(const UObject* WorldContextObject, UPARAM(ref) TArray<FString>& content, const FIFlytekTMInfo& InConfigInfo, UPARAM(ref) bool& bSparkDeskFinished, FTMHttpForSparkDeskDelegate InTMHttpForSparkDeskDelegate);
+	/**
+	 * 开始语音合成（流式版）TTS，自动下载并保持wav音频，保存完成后通知
+	 * @param content 待合成的文本
+	 * @param InConfigInfo 参数配置
+	 * @param filePath 必填，保存文件路径，如：E:\xxx.wav
+	 * @param InTTSSaveFileCompletedDelegate 保存完成后事件通知
+	 * @param bAutoPlay 是否自动播放合成音频
+	 */
+	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|TTS|WebSocket")
+	static void StartTTS_ByWebSocket_WithCompletedDelegate(const UObject* WorldContextObject, const FString& content, const FIFlytekTTSInfo& InConfigInfo, const FString& filePath, FTTSSaveFileCompletedDelegate InTTSSaveFileCompletedDelegate, bool bAutoPlay = false);
 
 	// 星火大模型聊天SparkDesk
 	UFUNCTION(BlueprintCallable, meta = (WorldContext = "WorldContextObject"), Category="IFlytekVoice|SD")
 	static void ChatSparkDesk(const UObject* WorldContextObject, const FString& content, const FIFlytekSDInfo& InConfigInfo, FSDSocketDelegate InSDSocketDelegate);
+
+	// 卸载HTTP模块
+	UFUNCTION(BlueprintCallable, Category="Http")
+	static void UnloadHttpMoudle();
+
+	// 加载HTTP模块
+	UFUNCTION(BlueprintCallable, Category="Http")
+	static void LoadHttpMoudle();
+
+	// 以wav文件形式播放音频
+	UFUNCTION(BlueprintCallable, Category="Audio")
+	static void PlaySoundByFile(const FString& InFilePath);
 };
