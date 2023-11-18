@@ -229,6 +229,7 @@ enum class ESparkDeskModel : uint8
 {
 	V1			UMETA(DisplayName = "V1.5"),
 	V2			UMETA(DisplayName = "V2.0"),
+	V3			UMETA(DisplayName = "V3.0"),
 };
 
 UENUM(BlueprintType)
@@ -753,7 +754,7 @@ struct IFLYTEKVOICE_API FIFlytekSDInfo
 
 	FIFlytekSDInfo();
 
-	// 星火大模型，目前有V1.5 V2.0
+	// 星火大模型，目前有V1.5 V2.0 V3.0
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "IFlytek|SDInfo")
 	ESparkDeskModel model;
 

@@ -397,6 +397,8 @@ FString FIFlytekSDInfo::GetPath() const
 		return TEXT("/v1.1/chat");
 	if (model == ESparkDeskModel::V2)
 		return TEXT("/v2.1/chat");
+	if (model == ESparkDeskModel::V3)
+		return TEXT("/v3.1/chat");
 	return TEXT("");
 }
 
@@ -406,6 +408,8 @@ FString FIFlytekSDInfo::GetDomain() const
 		return TEXT("general");
 	if (model == ESparkDeskModel::V2)
 		return TEXT("generalv2");
+	if (model == ESparkDeskModel::V3)
+		return TEXT("generalv3");
 	return TEXT("");
 }
 
@@ -415,6 +419,8 @@ FString FIFlytekSDInfo::GetServerURL() const
 		return TEXT("ws://spark-api.xf-yun.com/v1.1/chat");
 	if (model == ESparkDeskModel::V2)
 		return TEXT("ws://spark-api.xf-yun.com/v2.1/chat");
+	if (model == ESparkDeskModel::V3)
+		return TEXT("ws://spark-api.xf-yun.com/v3.1/chat");
 	return TEXT("");
 }
 
